@@ -38,31 +38,25 @@ regexNode *derive(regexNode *rN, char a) {
 
 	switch (rN->type) {
 		case UNION:
-			// insert(rN->hash, nT, a, isNullable(nT));
 			return union_re(derive(rN->LHS, a), derive(rN->RHS, a));
 		case CONCAT:
 			if (!isNullable(rN->LHS)) {
-				// insert(rN->hash, nT, a, isNullable(nT));
 				return concat(derive(rN->LHS, a), rN->RHS);
 			} else {
 				cN = copyTree(rN->RHS);
-				// insert(rN->hash, nT, a, isNullable(nT));
 				return union_re(concat(derive(rN->LHS, a), cN), derive(rN->RHS, a));
 			}
 		case KLEENE:
 			cN = copyTree(rN);
-			// insert(rN->hash, nT, a, isNullable(nT));
 			return concat(derive(rN->LHS, a), cN);
 		case SYMBOL:
 			if (a == rN->symbol) {
 				rN->symbol = EPSILON;
 				rN->hash = EPSILON;
-				// insert(rN->hash, rN, a, true);
 				return rN;
 			} else {
 				rN->symbol = EMPTY;
 				rN->hash = EMPTY;
-				// insert(rN->hash, rN, a, false);
 				return rN;
 			}
 		default:
@@ -70,10 +64,18 @@ regexNode *derive(regexNode *rN, char a) {
 	}
 }
 
-_Bool match(regexNode *pattern, char *string) {
+_Bool match(regexNode *restrict pattern, char *string) {
 	int i;
 	for (i = 0; i < strnlen(string, 255); i++) {
 		pattern = derive(pattern, string[i]);
+
+        /* preemptively exit the match process, since an empty string will never be more than empty */
+        switch (pattern->type) {
+            case SYMBOL:
+                if (pattern->symbol == EMPTY) {
+                    return false;
+                }
+        }
 	}
 	return isNullable(pattern);
 }

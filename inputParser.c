@@ -105,14 +105,23 @@ regexNode *parse(char *string) {
 				switch (lookahead) {
 					case ')':
 					case '|':
-					case '\0':
 					case '*':
 						free(top_ptr);
 						break;
+					case '\0':
+                        break;
 					case '(':
 					default:
 						if (!can_merge(*(char *) peek_stack(operand_stack), CONCAT)) {
-							/* push onto the OPERAND stack */
+                            /* exception */
+                            pop(operand_stack);
+                            merge_kleene(operator_stack);
+
+                            top_ptr = (char *) calloc(1, sizeof(*top_ptr));
+                            if (NULL == top_ptr) {
+                                fputs("Failed to init buffer", stderr);
+                                exit(1);
+                            }
 							top_ptr[0] = CONCAT;
 							push((void *) top_ptr, operand_stack);
 						} else {
@@ -163,6 +172,11 @@ regexNode *parse(char *string) {
 						break;
 					case '(':
 					default:
+                        top_ptr = (char *) calloc(1, sizeof(*top_ptr));
+                        if (NULL == top_ptr) {
+                            fputs("Failed to init buffer", stderr);
+                            exit(1);
+                        }
 						top_ptr[0] = CONCAT;
 						push((void *) top_ptr, operand_stack);
 				}

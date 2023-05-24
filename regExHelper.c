@@ -7,7 +7,7 @@ regexNode *symbol(char symbol) {
 	return sym;
 }
 
-regexNode *union_re(regexNode *LHS, regexNode *RHS) {
+regexNode *union_re(regexNode *restrict LHS, regexNode * restrict RHS) {
 	if (LHS->type == SYMBOL && LHS->symbol == EMPTY) {
 		free(LHS);
 		return RHS;
@@ -23,7 +23,7 @@ regexNode *union_re(regexNode *LHS, regexNode *RHS) {
 	}
 }
 
-regexNode *concat(regexNode *LHS, regexNode *RHS) {
+regexNode *concat(regexNode *restrict LHS, regexNode *restrict RHS) {
 	regexNode *cnt;
 	switch (LHS->type) {
 		case SYMBOL:
@@ -122,7 +122,7 @@ void print_regExp(const regexNode *root) {
 			}
 			break;
 
-			/* 1a debug methode */
+        /* 1a debug methode */
 		default:
 			fputs("This should not have happened - panic mode", stderr);
 			exit(1);
