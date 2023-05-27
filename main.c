@@ -6,10 +6,12 @@ int main() {
 	clock_t begin, end;
 	double time_spent;
 
-	char *pattern = "(a|b)*";
-	char *string = "abbbabacfewahqfeorwpnf4uio3pqnuv94qpnu4upqbabbbae";
+	char *pattern = "(0|1)+";
+	char *string = "111111";
 
+	printf("Pattern: %s\n", pattern);
 	regexNode *tree = parse(pattern);
+	printf("Resulting regular expression tree: ");
 	print_regExp(tree);
 	putchar('\n');
 
@@ -18,8 +20,10 @@ int main() {
 	end = clock();
 	time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
-	printf("%fs\n", time_spent);
-	printf("%s\n", hasMatched ? "true" : "false");
+	printf("Execution time: %fs\n", time_spent);
+
+	printf("Input: %s\n", string);
+	printf("Matched: %s\n", hasMatched ? "true" : "false");
 
 	return 0;
 }

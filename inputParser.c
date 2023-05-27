@@ -12,6 +12,23 @@ _Bool can_merge(char stack_char, char input_char) {
 	return false;
 }
 
+void create_union_digit_mega(void *op_stack) {
+	char i;
+
+	regexNode *nbr, *nbr1, *un;
+	for (i = 0; i < 9; i++) {
+		nbr = symbol( i+49);
+		if (i == 0) {
+			nbr1 = symbol(i + 48);
+			un = union_re(nbr1, nbr);
+		} else {
+			un = union_re(un, nbr);
+		}
+	}
+
+	push((void *) un, op_stack);
+}
+
 void merge_union(stack *op_stack) {
 	regexNode *RHS = (regexNode *) pop(op_stack);
 	regexNode *LHS = (regexNode *) pop(op_stack);
@@ -50,9 +67,20 @@ void merge_kleene(stack *op_stack) {
 	push((void *) ptr, op_stack);
 }
 
+void merge_positive(stack *op_stack) {
+	regexNode *LHS = (regexNode *) pop(op_stack);
+	regexNode *LHSDuplicate = copyTree(LHS);
+
+
+	regexNode *kln = kleene(LHS);
+
+	regexNode *ptr = concat(LHSDuplicate, kln);
+	push((void *) ptr, op_stack);
+}
+
 regexNode *parse(char *string) {
 	int i;
-	char lookahead, *top_ptr;
+	char lookahead, *top_ptr, special = 0;
 	regexNode *ptr;
 
 	stack *operator_stack = initialize_stack();
@@ -106,6 +134,7 @@ regexNode *parse(char *string) {
 					case ')':
 					case '|':
 					case '*':
+					case '+':
 						free(top_ptr);
 						break;
 					case '\0':
@@ -122,6 +151,46 @@ regexNode *parse(char *string) {
                                 fputs("Failed to init buffer", stderr);
                                 exit(1);
                             }
+							top_ptr[0] = CONCAT;
+							push((void *) top_ptr, operand_stack);
+						} else {
+							merge_concat(operator_stack);
+						}
+				}
+
+				break;
+
+			case '+':
+				/* we treat the positive closure like the kleene closure, since it is a kleene closure in disguise */
+				if (!can_merge(*(char *) peek_stack(operand_stack), KLEENE)) {
+					top_ptr[0] = POSITIVE;
+					push((void *) top_ptr, operand_stack);
+				} else {
+					merge_positive(operator_stack);
+				}
+
+				/* lookahead is not a special char */
+				switch (lookahead) {
+					case ')':
+					case '|':
+					case '*':
+					case '+':
+						free(top_ptr);
+						break;
+					case '\0':
+						break;
+					case '(':
+					default:
+						if (!can_merge(*(char *) peek_stack(operand_stack), CONCAT)) {
+							/* exception */
+							pop(operand_stack);
+							merge_positive(operator_stack);
+
+							top_ptr = (char *) calloc(1, sizeof(*top_ptr));
+							if (NULL == top_ptr) {
+								fputs("Failed to init buffer", stderr);
+								exit(1);
+							}
 							top_ptr[0] = CONCAT;
 							push((void *) top_ptr, operand_stack);
 						} else {
@@ -169,6 +238,7 @@ regexNode *parse(char *string) {
 					case '|':
 					case '\0':
 					case '*':
+					case '+':
 						break;
 					case '(':
 					default:
@@ -183,8 +253,24 @@ regexNode *parse(char *string) {
 				break;
 
 			case '\\':
-				i++;
-				lookahead = string[i + 1];
+
+				switch (lookahead) {
+					case 'd':
+						special = 1;
+						create_union_digit_mega(operator_stack);
+					case '\\':
+						i++;
+						lookahead = string[i + 1];
+						break;
+					default:
+						fputs("This should not have happened - panic mode", stderr);
+						exit(1);
+				}
+
+				if (special == 1) {
+					break;
+				}
+
 
 			default:
 				ptr = symbol(string[i]);
@@ -195,6 +281,7 @@ regexNode *parse(char *string) {
 					case '|':
 					case '\0':
 					case '*':
+					case '+':
 						free(top_ptr);
 						break;
 					case '(':
@@ -221,6 +308,9 @@ regexNode *parse(char *string) {
 				break;
 			case UNION:
 				merge_union(operator_stack);
+				break;
+			case POSITIVE:
+				merge_positive(operator_stack);
 				break;
 			default:
 				fputs("This should not have happened - panic mode", stderr);

@@ -10,6 +10,7 @@
 #define UNION 0x2
 #define KLEENE 0x3
 #define CONCAT 0x4
+#define POSITIVE 0x5
 
 /* RegEx special char */
 #define EMPTY 0x1e
@@ -19,6 +20,7 @@
 #define true 1
 #define false 0
 
+/* Szudzik-Functions */
 #define S(x, y) ((x) >= (y) ? ((x) * (x)) + (x) + (y) : (y) * (y) + (x))
 #define SMOD(x, y) ((x) >= (y) ? ((x) * (x)) + (x) + (y) : (y) * (y) + (x))
 
