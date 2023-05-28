@@ -25,9 +25,9 @@
 
 /* RegEx tree structure */
 typedef struct regexNodeStruct {
-	struct regexNodeStruct *LHS, *RHS;
-	unsigned char type, symbol;
-	unsigned long long hash;
+    struct regexNodeStruct *LHS, *RHS;
+    unsigned char type, symbol;
+    unsigned long long hash;
 
     unsigned char isNullable: 1;
     unsigned char negated: 1;
@@ -41,22 +41,30 @@ typedef struct regexNodeStruct {
 
 /* regexNode constructors */
 extern regexNode *getNode(unsigned char regexType);
+
 extern regexNode *symbol(char symbol);
+
 extern regexNode *union_re(regexNode *restrict LHS, regexNode *restrict RHS);
+
 extern regexNode *concat(regexNode *restrict LHS, regexNode *restrict RHS);
+
 extern regexNode *kleene(regexNode *child);
 
 /* derivation functions */
 extern _Bool isNullable(regexNode *rN);
+
 extern regexNode *derive(regexNode *rN, char a);
 
 /* match functions */
 extern _Bool match(regexNode *restrict pattern, char *restrict string);
-extern void matchAny(regexNode *restrict pattern, char *restrict string);
+
+extern int *matchAny(regexNode *restrict pattern, char *restrict string);
 
 /* tree functions */
 extern void print_regExp(const regexNode *root);
+
 extern regexNode *copyTree(regexNode *child);
+
 extern regexNode *parse(char *string);
 
 #endif

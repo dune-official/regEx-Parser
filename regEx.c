@@ -57,19 +57,19 @@ _Bool match(regexNode *restrict pattern, char *restrict string) {
 		pattern = derive(pattern, string[i]);
 
         /* preemptively exit the match process, since an empty string will never be more than empty */
-        switch (pattern->type) {
-            case SYMBOL:
-                if (pattern->symbol == EMPTY) {
-                    return false;
-                }
+        if (pattern->type == SYMBOL && pattern->symbol == EMPTY) {
+            return false;
         }
-	}
+    }
 
-	return isNullable(pattern);
+    return isNullable(pattern);
 }
 
-void matchAny(regexNode *restrict pattern, char *restrict string) {
+int *matchAny(regexNode *restrict pattern, char *restrict string) {
     int i, j = 0;
+
+    int *matches = NULL;
+
     regexNode *copiedPattern = copyTree(pattern);
 
     for (i = 0; i < strnlen(string, 255); i++) {
@@ -77,12 +77,10 @@ void matchAny(regexNode *restrict pattern, char *restrict string) {
 
         if (copiedPattern->type == SYMBOL && copiedPattern->symbol == EMPTY) {
             /* retry matching */
-            j = i;
+            j = i + 1;
             copiedPattern = copyTree(pattern);
             continue;
-        }
-
-        if (copiedPattern->isNullable) {
+        } else if (copiedPattern->isNullable) {
             /* we have a match */
             while (copiedPattern->isNullable && copiedPattern->type != SYMBOL) {
                 /* match as much as possible if the pattern is not exhausted yet (Kleene) */
@@ -90,9 +88,32 @@ void matchAny(regexNode *restrict pattern, char *restrict string) {
                 copiedPattern = derive(copiedPattern, string[++i]);
             }
 
-            printf("Matched %d to %d\n", j, i);
+            if (NULL == matches) {
+                matches = calloc(3, sizeof(matches));
+                if (NULL == matches) {
+                    fputs("Failed to init buffer", stderr);
+                    exit(1);
+                }
+
+                matches[matches[0]] = j;
+                matches[matches[0] + 1] = i - 1;
+                matches[0] = 2;
+            } else {
+                int *tmp = realloc(matches, matches[0] + 2);
+                if (NULL == tmp) {
+                    fputs("Failed to init buffer", stderr);
+                    exit(1);
+                }
+                matches = tmp;
+                matches[matches[0]] = j;
+                matches[matches[0] + 1] = i - 1;
+                matches[0] += 2;
+            }
+
             j = i;
             copiedPattern = copyTree(pattern);
         }
     }
+
+    return matches;
 }
