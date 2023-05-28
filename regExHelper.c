@@ -4,6 +4,11 @@ regexNode *symbol(char symbol) {
 	regexNode *sym = getNode(SYMBOL);
 	sym->symbol = symbol;
 	sym->hash = (symbol - 30);
+
+    if (symbol == EPSILON) {
+        sym->isNullable = 1;
+    }
+
 	return sym;
 }
 
@@ -19,6 +24,9 @@ regexNode *union_re(regexNode *restrict LHS, regexNode * restrict RHS) {
 		uni->LHS = LHS;
 		uni->RHS = RHS;
 		uni->hash = S(LHS->hash, RHS->hash);
+
+        uni->isNullable = LHS->isNullable || RHS->isNullable;
+
 		return uni;
 	}
 }
@@ -51,6 +59,9 @@ regexNode *concat(regexNode *restrict LHS, regexNode *restrict RHS) {
 	cnt->LHS = LHS;
 	cnt->RHS = RHS;
 	cnt->hash = SMOD(LHS->hash, RHS->hash);
+
+    cnt->isNullable = LHS->isNullable && RHS->isNullable;
+
 	return cnt;
 }
 
@@ -64,6 +75,9 @@ regexNode *kleene(regexNode *child) {
 		regexNode *kln = getNode(KLEENE);
 		kln->LHS = child;
 		kln->hash = child->hash + 1;
+
+        kln->isNullable = 1;
+
 		return kln;
 	}
 }

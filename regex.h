@@ -16,7 +16,6 @@
 #define EMPTY 0x1e
 #define EPSILON 0x1f
 
-#define TENMEG 10485760
 #define true 1
 #define false 0
 
@@ -29,6 +28,9 @@ typedef struct regexNodeStruct {
 	struct regexNodeStruct *LHS, *RHS;
 	unsigned char type, symbol;
 	unsigned long long hash;
+
+    unsigned char isNullable: 1;
+    unsigned char negated: 1;
 } regexNode;
 
 // typedef struct regexMatchResultStruct {

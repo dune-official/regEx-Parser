@@ -15,18 +15,9 @@ regexNode *getNode(unsigned char regexType) {
 _Bool isNullable(regexNode *rN) {
 	switch (rN->type) {
 		case UNION:
-			return isNullable(rN->LHS) || isNullable(rN->RHS) ? true : false;
-		case CONCAT:
-			return isNullable(rN->LHS) && isNullable(rN->RHS) ? true : false;
-		case KLEENE:
-			return true;
-		case SYMBOL:
-			switch (rN->symbol) {
-				case EPSILON:
-					return true;
-			}
+			return rN->isNullable ^ rN->negated;
 		default:
-			return false;
+			return rN->isNullable;
 	}
 }
 
@@ -64,7 +55,7 @@ regexNode *derive(regexNode *rN, char a) {
 	}
 }
 
-_Bool match(regexNode *restrict pattern, char *string) {
+_Bool match(regexNode *restrict pattern, char *restrict string) {
 	int i;
 	for (i = 0; i < strnlen(string, 255); i++) {
 		pattern = derive(pattern, string[i]);
@@ -78,4 +69,8 @@ _Bool match(regexNode *restrict pattern, char *string) {
         }
 	}
 	return isNullable(pattern);
+}
+
+_Bool matchAny(regexNode *restrict pattern, char *restrict string) {
+    return false;
 }
