@@ -7,7 +7,7 @@ int main() {
 	double time_spent;
 
 	char *pattern = "(0|1)+";
-	char *string = "111111";
+	char *string = "000";
 
 	printf("Pattern: %s\n", pattern);
 	regexNode *tree = parse(pattern);

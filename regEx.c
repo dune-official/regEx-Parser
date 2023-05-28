@@ -42,13 +42,9 @@ regexNode *derive(regexNode *rN, char a) {
 			return concat(derive(rN->LHS, a), cN);
 		case SYMBOL:
 			if (a == rN->symbol) {
-				rN->symbol = EPSILON;
-				rN->hash = EPSILON;
-				return rN;
+				return symbol(EPSILON);
 			} else {
-				rN->symbol = EMPTY;
-				rN->hash = EMPTY;
-				return rN;
+                return symbol(EMPTY);
 			}
 		default:
 			return NULL;
@@ -68,9 +64,17 @@ _Bool match(regexNode *restrict pattern, char *restrict string) {
                 }
         }
 	}
+
 	return isNullable(pattern);
 }
 
 _Bool matchAny(regexNode *restrict pattern, char *restrict string) {
+    int i, j;
+    regexNode *copiedPattern = copyTree(pattern);
+
+    for (i = 0; ;) {
+
+    }
+
     return false;
 }
