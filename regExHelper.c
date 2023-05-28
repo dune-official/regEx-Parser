@@ -36,7 +36,6 @@ regexNode *concat(regexNode *restrict LHS, regexNode *restrict RHS) {
 	switch (LHS->type) {
 		case SYMBOL:
 			if (LHS->symbol == EMPTY) {
-                puts("isEMPTY");
                 free(RHS);
                 return LHS;
 			} else if (LHS->symbol == EPSILON) {
@@ -85,8 +84,11 @@ regexNode *kleene(regexNode *child) {
 
 regexNode *copyTree(regexNode *child) {
 	regexNode *newNode = getNode(child->type);
+
+    /* remember when these didn't exist? */
 	newNode->hash = child->hash;
     newNode->isNullable = child->isNullable;
+    newNode->negated = child->negated;
 
 	if (child->type == SYMBOL) {
 		newNode->symbol = child->symbol;

@@ -52,7 +52,7 @@ extern regexNode *derive(regexNode *rN, char a);
 
 /* match functions */
 extern _Bool match(regexNode *restrict pattern, char *restrict string);
-// extern regexMatchResult *matchAny(regexNode *pattern, char *string);
+extern void matchAny(regexNode *restrict pattern, char *restrict string);
 
 /* tree functions */
 extern void print_regExp(const regexNode *root);

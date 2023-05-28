@@ -68,13 +68,31 @@ _Bool match(regexNode *restrict pattern, char *restrict string) {
 	return isNullable(pattern);
 }
 
-_Bool matchAny(regexNode *restrict pattern, char *restrict string) {
-    int i, j;
+void matchAny(regexNode *restrict pattern, char *restrict string) {
+    int i, j = 0;
     regexNode *copiedPattern = copyTree(pattern);
 
-    for (i = 0; ;) {
+    for (i = 0; i < strnlen(string, 255); i++) {
+        copiedPattern = derive(copiedPattern, string[i]);
 
+        if (copiedPattern->type == SYMBOL && copiedPattern->symbol == EMPTY) {
+            /* retry matching */
+            j = i;
+            copiedPattern = copyTree(pattern);
+            continue;
+        }
+
+        if (copiedPattern->isNullable) {
+            /* we have a match */
+            while (copiedPattern->isNullable && copiedPattern->type != SYMBOL) {
+                /* match as much as possible if the pattern is not exhausted yet (Kleene) */
+                copiedPattern = copyTree(pattern);
+                copiedPattern = derive(copiedPattern, string[++i]);
+            }
+
+            printf("Matched %d to %d\n", j, i);
+            j = i;
+            copiedPattern = copyTree(pattern);
+        }
     }
-
-    return false;
 }
