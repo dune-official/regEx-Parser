@@ -16,6 +16,11 @@ regexNode *symbol(char symbol) {
 	regexNode *sym = getNode(SYMBOL);
 	sym->symbol = symbol;
 	sym->hash = (symbol - 30);
+
+    if (symbol == EPSILON) {
+        sym->isNullable = true;
+    }
+
 	return sym;
 }
 
@@ -31,6 +36,9 @@ regexNode *union_re(regexNode *restrict LHS, regexNode * restrict RHS) {
 		uni->LHS = LHS;
 		uni->RHS = RHS;
 		uni->hash = S(LHS->hash, RHS->hash);
+
+        uni->isNullable = LHS->isNullable || RHS->isNullable;
+
 		return uni;
 	}
 }
@@ -39,23 +47,23 @@ regexNode *concat(regexNode *restrict LHS, regexNode *restrict RHS) {
 	regexNode *cnt;
 	switch (LHS->type) {
 		case SYMBOL:
-			if (LHS->symbol == EPSILON) {
-				free(LHS);
-				return RHS;
-			} else if (LHS->symbol == EMPTY) {
-				free(RHS);
-				return LHS;
+			if (LHS->symbol == EMPTY) {
+                free(RHS);
+                return LHS;
+			} else if (LHS->symbol == EPSILON) {
+                free(LHS);
+                return RHS;
 			}
 	}
 
 	switch (RHS->type) {
 		case SYMBOL:
-			if (RHS->symbol == EPSILON) {
-				free(RHS);
-				return LHS;
-			} else if (RHS->symbol == EMPTY) {
-				free(LHS);
-				return RHS;
+			if (RHS->symbol == EMPTY) {
+                free(LHS);
+                return RHS;
+			} else if (RHS->symbol == EPSILON) {
+                free(RHS);
+                return LHS;
 			}
 	}
 
@@ -63,6 +71,9 @@ regexNode *concat(regexNode *restrict LHS, regexNode *restrict RHS) {
 	cnt->LHS = LHS;
 	cnt->RHS = RHS;
 	cnt->hash = SMOD(LHS->hash, RHS->hash);
+
+    cnt->isNullable = LHS->isNullable && RHS->isNullable;
+
 	return cnt;
 }
 
@@ -76,13 +87,21 @@ regexNode *kleene(regexNode *child) {
 		regexNode *kln = getNode(KLEENE);
 		kln->LHS = child;
 		kln->hash = child->hash + 1;
+
+        kln->isNullable = true;
+
 		return kln;
 	}
 }
 
 regexNode *copyTree(regexNode *child) {
 	regexNode *newNode = getNode(child->type);
+
+    /* remember when these didn't exist? */
 	newNode->hash = child->hash;
+    newNode->isNullable = child->isNullable;
+    newNode->negated = child->negated;
+
 	if (child->type == SYMBOL) {
 		newNode->symbol = child->symbol;
 	} else {
