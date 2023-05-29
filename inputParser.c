@@ -1,5 +1,5 @@
-#include "regex.h"
-#include "stack.h"
+#include "regex/regex.h"
+#include "stack/stack.h"
 
 _Bool can_merge(char stack_char, char input_char) {
 	if (stack_char < 2 || stack_char > 4) {

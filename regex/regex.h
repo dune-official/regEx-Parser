@@ -1,9 +1,12 @@
 #ifndef REGEX_PARSER_REGEX_H
 #define REGEX_PARSER_REGEX_H
 
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+
+#include "../dfa/DFA.h"
+#include "../queue/queue.h"
 
 /* RegEx types */
 #define SYMBOL 0x1
@@ -49,12 +52,14 @@ extern _Bool isNullable(regexNode *rN);
 extern regexNode *derive(regexNode *rN, char a);
 
 /* match functions */
-extern _Bool match(regexNode *restrict pattern, char *restrict string);
+extern _Bool match(regexNode *restrict pattern, char *restrict string, int matchLen);
 // extern regexMatchResult *matchAny(regexNode *pattern, char *string);
 
 /* tree functions */
 extern void print_regExp(const regexNode *root);
 extern regexNode *copyTree(regexNode *child);
 extern regexNode *parse(char *string);
+
+extern DFA **patternToDFA(regexNode *pattern);
 
 #endif

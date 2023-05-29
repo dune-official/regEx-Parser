@@ -1,5 +1,17 @@
 #include "regex.h"
 
+regexNode *getNode(unsigned char regexType) {
+	regexNode *newNode = (regexNode *) calloc(1, sizeof(*newNode));
+	if (NULL == newNode) {
+		fputs("Failed to init buffer", stderr);
+		exit(1);
+	}
+	newNode->type = regexType;
+	newNode->symbol = 0;
+	newNode->hash = 0;
+	return newNode;
+}
+
 regexNode *symbol(char symbol) {
 	regexNode *sym = getNode(SYMBOL);
 	sym->symbol = symbol;
@@ -111,10 +123,10 @@ void print_regExp(const regexNode *root) {
 		case SYMBOL:
 			switch (root->symbol) {
 				case EPSILON:
-					printf("$");
+					putchar('$');
 					break;
 				case EMPTY:
-					printf("{}");
+					putchar('{');putchar('}');
 					break;
 				default:
 					putchar(root->symbol);

@@ -1,8 +1,7 @@
 #ifndef STACK_STACK_H
 #define STACK_STACK_H
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "../regex/regex.h"
 
 typedef struct AuxiliaryNodeS {
 	struct StackElement *stack_end;
