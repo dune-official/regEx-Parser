@@ -12,7 +12,7 @@ _Bool can_merge(char stack_char, char input_char) {
 	return false;
 }
 
-void create_union_digit_mega(void *op_stack) {
+void create_union_digit_meta(void *op_stack) {
 	char i;
 
 	regexNode *nbr, *nbr1, *un;
@@ -27,6 +27,43 @@ void create_union_digit_mega(void *op_stack) {
 	}
 
 	push((void *) un, op_stack);
+}
+
+void create_union_printable_meta(void *op_stack) {
+    char i;
+
+    regexNode *nbr, *nbr1, *un;
+    for (i = 0; i < 9; i++) {
+        nbr = symbol( i+49);
+        if (i == 0) {
+            nbr1 = symbol(i + 48);
+            un = union_re(nbr1, nbr);
+        } else {
+            un = union_re(un, nbr);
+        }
+    }
+
+    for (i = 0; i < 25; i++) {
+        nbr = symbol( i+66);
+        if (i == 0) {
+            nbr1 = symbol(i + 65);
+            un = union_re(nbr1, nbr);
+        } else {
+            un = union_re(un, nbr);
+        }
+    }
+
+    for (i = 0; i < 25; i++) {
+        nbr = symbol( i+98);
+        if (i == 0) {
+            nbr1 = symbol(i + 97);
+            un = union_re(nbr1, nbr);
+        } else {
+            un = union_re(un, nbr);
+        }
+    }
+
+    push((void *) un, op_stack);
 }
 
 void merge_union(stack *op_stack) {
@@ -71,16 +108,24 @@ void merge_positive(stack *op_stack) {
 	regexNode *LHS = (regexNode *) pop(op_stack);
 	regexNode *LHSDuplicate = copyTree(LHS);
 
-
 	regexNode *kln = kleene(LHS);
 
 	regexNode *ptr = concat(LHSDuplicate, kln);
 	push((void *) ptr, op_stack);
 }
 
+void merge_zeroOrMore(void *op_stack) {
+    regexNode *LHS = (regexNode *) pop(op_stack);
+    regexNode *epsilon = symbol(EPSILON);
+
+    regexNode *uni = union_re(LHS, epsilon);
+
+    push((void *) uni, op_stack);
+}
+
 regexNode *parse(char *string) {
 	int i;
-	char lookahead, *top_ptr, special = 0;
+	char lookahead, *top_ptr;
 	regexNode *ptr;
 
 	stack *operator_stack = initialize_stack();
@@ -256,23 +301,22 @@ regexNode *parse(char *string) {
 
 				switch (lookahead) {
 					case 'd':
-						special = 1;
-						create_union_digit_mega(operator_stack);
-					case '\\':
-						i++;
-						lookahead = string[i + 1];
-						break;
+						create_union_digit_meta(operator_stack);
+                        break;
+                    case 'w':
+                        create_union_printable_meta(operator_stack);
+                        break;
 					default:
 						fputs("This should not have happened - panic mode", stderr);
 						exit(1);
 				}
 
-				if (special == 1) {
-					break;
-				}
-
+                i++;
+                lookahead = string[i + 1];
+                break;
 
 			default:
+                ESCAPED_SYMBOL:
 				ptr = symbol(string[i]);
 				push((void *) ptr, operator_stack);
 				/* lookahead is not a special char */

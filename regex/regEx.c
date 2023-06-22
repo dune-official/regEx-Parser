@@ -1,5 +1,6 @@
 #include "regex.h"
 #include "../hash/hash.h"
+#include "../queue/queue.h"
 
 /* Generates the minimized DFA for matching the given regex pattern.
  * This function should provide a significant improvement in speed,
@@ -15,7 +16,7 @@ DFA **patternToDFA(regexNode *pattern) {
 	DFA *currentDFA, *ptr;
 	int dfaSize = 1;
 
-	unsigned long long ptrRHash = 0;
+	unsigned long long ptrRHash;
 
 	hash_insert(ptrR->hash, ptrR, dfa[0]);
 	enqueue(ptrR->hash, q);

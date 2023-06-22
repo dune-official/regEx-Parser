@@ -16,11 +16,6 @@ regexNode *symbol(char symbol) {
 	regexNode *sym = getNode(SYMBOL);
 	sym->symbol = symbol;
 	sym->hash = (symbol - 30);
-
-    if (symbol == EPSILON) {
-        sym->isNullable = true;
-    }
-
 	return sym;
 }
 
@@ -36,9 +31,6 @@ regexNode *union_re(regexNode *restrict LHS, regexNode * restrict RHS) {
 		uni->LHS = LHS;
 		uni->RHS = RHS;
 		uni->hash = S(LHS->hash, RHS->hash);
-
-        uni->isNullable = LHS->isNullable || RHS->isNullable;
-
 		return uni;
 	}
 }
@@ -67,13 +59,15 @@ regexNode *concat(regexNode *restrict LHS, regexNode *restrict RHS) {
 			}
 	}
 
+    if (LHS->hash == RHS->hash && LHS->type == KLEENE && RHS->type == KLEENE) {
+        free(RHS);
+        return LHS;
+    }
+
 	cnt = getNode(CONCAT);
 	cnt->LHS = LHS;
 	cnt->RHS = RHS;
 	cnt->hash = SMOD(LHS->hash, RHS->hash);
-
-    cnt->isNullable = LHS->isNullable && RHS->isNullable;
-
 	return cnt;
 }
 
@@ -87,21 +81,13 @@ regexNode *kleene(regexNode *child) {
 		regexNode *kln = getNode(KLEENE);
 		kln->LHS = child;
 		kln->hash = child->hash + 1;
-
-        kln->isNullable = true;
-
 		return kln;
 	}
 }
 
 regexNode *copyTree(regexNode *child) {
 	regexNode *newNode = getNode(child->type);
-
-    /* remember when these didn't exist? */
 	newNode->hash = child->hash;
-    newNode->isNullable = child->isNullable;
-    newNode->negated = child->negated;
-
 	if (child->type == SYMBOL) {
 		newNode->symbol = child->symbol;
 	} else {

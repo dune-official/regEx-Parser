@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "../dfa/DFA.h"
-#include "../queue/queue.h"
+// #include "../queue/queue.h"
 
 /* RegEx types */
 #define SYMBOL 0x1
