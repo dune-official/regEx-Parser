@@ -58,7 +58,7 @@ extern _Bool match(regexNode *restrict pattern, char *restrict string, int match
 /* tree functions */
 extern void print_regExp(const regexNode *root);
 extern regexNode *copyTree(regexNode *child);
-extern regexNode *parse(char *string);
+// extern regexNode *parse(char *string);
 
 extern DFA **patternToDFA(regexNode *pattern);
 

@@ -1,9 +1,10 @@
 #include "regex/regex.h"
+#include "parser/prattParser.h"
 #include <time.h>
 
 // x#include <fcntl.h>
 
-int main() {
+int main_() {
 
 	clock_t begin, end;
 	double time_spent;
@@ -12,7 +13,8 @@ int main() {
     char *string = "0";
 
 	printf("Pattern: %s\n", pattern);
-	regexNode *tree = parse(pattern);
+	// regexNode *tree = parse(pattern);
+	regexNode *tree = NULL;
 	printf("Resulting regular expression tree: ");
 	print_regExp(tree);
 	putchar('\n');
@@ -32,6 +34,63 @@ int main() {
 
 	// printf("Input: %s\n", string);
 	printf("Matched: %s\n", hasMatched ? "true" : "false");
+
+	return 0;
+}
+
+int main() {
+	char *pattern = "ab";
+
+	seek *node = initialize_seekable();
+
+	token *firstToken = (token *) calloc(1, sizeof(*firstToken));
+	if (NULL == firstToken) {
+		fputs("Failed to initialize buffer", stderr);
+		exit(1);
+	}
+
+	firstToken->type = SYMBOL;
+	firstToken->content = 'c';
+	firstToken->precedence = LOWEST_PR;
+	firstToken->isNud = 1;
+
+	token *secondToken = (token *) calloc(1, sizeof(*secondToken));
+	if (NULL == secondToken) {
+		fputs("Failed to initialize buffer", stderr);
+		exit(1);
+	}
+
+	secondToken->type = SYMBOL;
+	secondToken->content = 'b';
+	secondToken->precedence = LOWEST_PR;
+	secondToken->isNud = 1;
+
+	token *thirdToken = (token *) calloc(1, sizeof(*thirdToken));
+	if (NULL == thirdToken) {
+		fputs("Failed to initialize buffer", stderr);
+		exit(1);
+	}
+
+	thirdToken->type = SYMBOL;
+	thirdToken->content = 't';
+	thirdToken->precedence = LOWEST_PR;
+	thirdToken->isNud = 1;
+
+	/* the first object inserted is special */
+	set_current((void *) firstToken, node->current);
+
+	insert_node_right(node);
+	seek_right(node);
+	set_current((void *) secondToken, node->current);
+
+	insert_node_right(node);
+	seek_right(node);
+	set_current((void *) thirdToken, node->current);
+
+	node->current = node->start;
+
+	regexNode *tree = parse(node, LOWEST_PR);
+	print_regExp(tree);
 
 	return 0;
 }

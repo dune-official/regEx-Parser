@@ -15,7 +15,7 @@ regexNode *getNode(unsigned char regexType) {
 regexNode *symbol(char symbol) {
 	regexNode *sym = getNode(SYMBOL);
 	sym->symbol = symbol;
-	sym->hash = (symbol - 30);
+	sym->hash = (unsigned long long) symbol;
 	return sym;
 }
 

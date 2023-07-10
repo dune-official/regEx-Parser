@@ -123,7 +123,7 @@ void merge_zeroOrMore(void *op_stack) {
     push((void *) uni, op_stack);
 }
 
-regexNode *parse(char *string) {
+regexNode *parse__(char *string) {
 	int i;
 	char lookahead, *top_ptr;
 	regexNode *ptr;
