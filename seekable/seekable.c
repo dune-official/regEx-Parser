@@ -30,6 +30,7 @@ seek *initialize_seekable() {
 		exit(1);
 	}
 	toreturn->start->next->previous = toreturn->start;
+
 	return toreturn;
 }
 

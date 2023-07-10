@@ -4,6 +4,7 @@
 #include "../queue/queue.h"
 #include "../stack/stack.h"
 #include "../seekable/seekable.h"
+#include "../seekable/seekable.h"
 
 #define BACKSLASH 0x6
 
@@ -15,11 +16,14 @@ typedef struct tokenStruct {
 } token;
 
 enum Precedence {
-	LOWEST_PR,
-	UNION_PR,
-	CONCAT_PR,
-	KLEENE_PR
+	PR_LOWEST,
+	PR_UNION,
+	PR_CONCAT,
+	PR_KLEENE
 };
+
+
+extern seek* tokenize(const char *inputString, char length);
 
 extern regexNode *parse(seek *tokenstream, char precedence);
 extern void advance(seek *tokenstream);

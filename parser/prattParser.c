@@ -46,7 +46,7 @@ regexNode *parse(seek *node, char precedence) {
 					exit(1);
 				}
 				new->type = CONCAT;
-				new->precedence = CONCAT_PR;
+				new->precedence = PR_CONCAT;
 				new->isNud = 1;
 
 				insert_node_right(node);
@@ -163,6 +163,6 @@ regexNode *parseEscaped(seek *node, char escaped) {
 
 regexNode *parseConcat(regexNode *restrict LHS, seek *restrict node) {
 	advance(node);
-	regexNode *RHS = parse(node, CONCAT_PR);
+	regexNode *RHS = parse(node, PR_CONCAT);
 	return concat(LHS, RHS);
 }

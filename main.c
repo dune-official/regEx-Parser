@@ -39,57 +39,10 @@ int main_() {
 }
 
 int main() {
-	char *pattern = "ab";
+	char *pattern = "cbt";
+    seek *tokenStream = tokenize(pattern, strnlen(pattern, 256));
 
-	seek *node = initialize_seekable();
-
-	token *firstToken = (token *) calloc(1, sizeof(*firstToken));
-	if (NULL == firstToken) {
-		fputs("Failed to initialize buffer", stderr);
-		exit(1);
-	}
-
-	firstToken->type = SYMBOL;
-	firstToken->content = 'c';
-	firstToken->precedence = LOWEST_PR;
-	firstToken->isNud = 1;
-
-	token *secondToken = (token *) calloc(1, sizeof(*secondToken));
-	if (NULL == secondToken) {
-		fputs("Failed to initialize buffer", stderr);
-		exit(1);
-	}
-
-	secondToken->type = SYMBOL;
-	secondToken->content = 'b';
-	secondToken->precedence = LOWEST_PR;
-	secondToken->isNud = 1;
-
-	token *thirdToken = (token *) calloc(1, sizeof(*thirdToken));
-	if (NULL == thirdToken) {
-		fputs("Failed to initialize buffer", stderr);
-		exit(1);
-	}
-
-	thirdToken->type = SYMBOL;
-	thirdToken->content = 't';
-	thirdToken->precedence = LOWEST_PR;
-	thirdToken->isNud = 1;
-
-	/* the first object inserted is special */
-	set_current((void *) firstToken, node->current);
-
-	insert_node_right(node);
-	seek_right(node);
-	set_current((void *) secondToken, node->current);
-
-	insert_node_right(node);
-	seek_right(node);
-	set_current((void *) thirdToken, node->current);
-
-	node->current = node->start;
-
-	regexNode *tree = parse(node, LOWEST_PR);
+	regexNode *tree = parse(tokenStream, PR_LOWEST);
 	print_regExp(tree);
 
 	return 0;
