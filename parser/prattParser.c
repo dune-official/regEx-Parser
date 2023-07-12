@@ -1,4 +1,4 @@
-#include "prattParser.h"
+#include "processPattern.h"
 
 regexNode *getDigit() {
 	return NULL;
@@ -37,8 +37,7 @@ regexNode *parse(seek *node, char precedence) {
 
 		/* but before that, we'll take the lookahead in the tokenstream and determine if it is also a null denotation,
 		 * and if yes, we add a concat token */
-
-		if (NULL != (lookahead = peek_right(node))) {
+		if (NULL != (lookahead = (token *) peek_right(node))) {
 			if (lookahead->isNud) {
 				new = (token *) calloc(1, sizeof(*new));
 				if (NULL == new) {
@@ -60,10 +59,27 @@ regexNode *parse(seek *node, char precedence) {
 			advance(node);
 			break;
 		case '(':
-			left = parseUnion(node);
-			advance(node);
-			break;
 		case '<':
+
+			/* lookahead time 🥳
+			* if the following token is a ")", we can assume that there has to be an EPSILON */
+			if (NULL != (lookahead = (token *) peek_right(node))) {
+				if (lookahead->type == '|') {
+					new = (token *) calloc(1, sizeof(*new));
+					if (NULL == new) {
+						fputs("Failed to initialize buffer", stderr);
+						exit(1);
+					}
+					new->type = SYMBOL;
+					new->precedence = PR_LOWEST;
+					new->isNud = 1;
+					new->content = EPSILON;
+
+					insert_node_right(node);
+					set_right((void *) new, node->current);
+				}
+			}
+
 			left = parseGroup(node);
 			advance(node);
 			break;
@@ -99,8 +115,31 @@ regexNode *parse(seek *node, char precedence) {
 				break;
 			case '+':
 				left = concat(left, kleene(copyTree(left)));
+				advance(node);
+				break;
 			case '{':
 				puts("Parsing quantifier");
+				break;
+			case '|':
+
+				/* lookahead time again 🥳🎉🎊
+				 * if the following token is a ")" or EOF, we can assume that there has to be an EPSILON */
+				if (NULL != (lookahead = (token *) peek_right(node)) || ')' == lookahead->type) {
+					new = (token *) calloc(1, sizeof(*new));
+					if (NULL == new) {
+						fputs("Failed to initialize buffer", stderr);
+						exit(1);
+					}
+					new->type = SYMBOL;
+					new->precedence = PR_LOWEST;
+					new->isNud = 1;
+					new->content = EPSILON;
+
+					insert_node_right(node);
+					set_right((void *) new, node->current);
+				}
+
+				left = parseUnion(left, node);
 				break;
 			case CONCAT:
 				left = parseConcat(left, node);
@@ -117,28 +156,6 @@ regexNode *parse(seek *node, char precedence) {
 	}
 
 	return left;
-}
-
-regexNode *parseUnion(seek *node) {
-	advance(node);
-
-	regexNode *LHS = parse(node, 1);
-	token *next_token = peek(node);
-
-	if (next_token->type != '|') {
-		fprintf(stderr, "Expected '|', got %c\n", next_token->type);
-		exit(1);
-	}
-
-	regexNode *RHS = parse(node, 1);
-	next_token = peek(node);
-
-	if (next_token->type != ')') {
-		fprintf(stderr, "Expected ')', got %c\n", next_token->type);
-		exit(1);
-	}
-
-	return union_re(LHS, RHS);
 }
 
 regexNode *parseGroup(seek *tokenstream) {
@@ -159,6 +176,12 @@ regexNode *parseEscaped(seek *node, char escaped) {
 			fprintf(stderr, "Unexpected escape character: \\%c\n", escaped);
 	}
 	return NULL;
+}
+
+regexNode *parseUnion(regexNode *restrict LHS, seek *restrict node) {
+	advance(node);
+	regexNode *RHS = parse(node, PR_UNION);
+	return union_re(LHS, RHS);
 }
 
 regexNode *parseConcat(regexNode *restrict LHS, seek *restrict node) {

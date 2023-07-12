@@ -1,5 +1,5 @@
-#ifndef REGEX_PARSER_PRATTPARSER_H
-#define REGEX_PARSER_PRATTPARSER_H
+#ifndef REGEX_PARSER_PROCESSPATTERN_H
+#define REGEX_PARSER_PROCESSPATTERN_H
 
 #include "../queue/queue.h"
 #include "../stack/stack.h"
@@ -19,8 +19,10 @@ enum Precedence {
 	PR_LOWEST,
 	PR_UNION,
 	PR_CONCAT,
+	PR_QUANT,
 	PR_KLEENE
 };
+
 
 
 extern seek* tokenize(const char *inputString, char length);
@@ -28,9 +30,9 @@ extern seek* tokenize(const char *inputString, char length);
 extern regexNode *parse(seek *tokenstream, char precedence);
 extern void advance(seek *tokenstream);
 
-extern regexNode *parseUnion(seek *tokenstream);
 extern regexNode *parseGroup(seek *tokenstream);
 extern regexNode *parseEscaped(seek *tokenstream, char escaped);
 regexNode *parseConcat(regexNode *restrict LHS, seek *restrict node);
+regexNode *parseUnion(regexNode *restrict LHS, seek *restrict node);
 
 #endif

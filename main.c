@@ -1,5 +1,5 @@
 #include "regex/regex.h"
-#include "parser/prattParser.h"
+#include "parser/processPattern.h"
 #include <time.h>
 
 // x#include <fcntl.h>
@@ -39,8 +39,29 @@ int main_() {
 }
 
 int main() {
-	char *pattern = "cbt";
-    seek *tokenStream = tokenize(pattern, strnlen(pattern, 256));
+	char *testSuite[17] = {
+			"mario",
+			"a",
+			"mario|luigi",
+			"\\d",
+			"\\|",
+			"(ab)c",
+			"<abc>",
+			"@1",
+			"a*v",
+			"c+c",
+			"[afd]",
+			"[a-x1]",
+			"[1a-x2]",
+			"a{4, 7}",
+			"(y){3, 5}c",
+			"(ya){1,                }",
+			"afd*{3}"
+	};
+
+	int i = 2;
+	seek *tokenStream;
+	tokenStream = tokenize(testSuite[i], strnlen(testSuite[i], 256));
 
 	regexNode *tree = parse(tokenStream, PR_LOWEST);
 	print_regExp(tree);
