@@ -83,11 +83,11 @@ seek* tokenize(const char *inputString, char length) {
 				break;
 			case '^':
 			case '$':
+			case '(':
 				curToken->precedence = PR_LOWEST;
 				curToken->isNud = 1;
 				break;
 			case '{':
-			case '(':
 			case ')':
 			case '>':
 			case ']':
@@ -95,19 +95,16 @@ seek* tokenize(const char *inputString, char length) {
 			case '-':
 			case ',':
 			case ':':
-                curToken->precedence = PR_LOWEST;
-                break;
+			case '<':
+				curToken->precedence = PR_LOWEST;
+				break;
 			case '|':
 			case '?':
 				curToken->precedence = PR_UNION;
 				break;
-            case '*':
-            case '+':
-                curToken->precedence = PR_KLEENE;
-                break;
-			case '<':
-				curToken->precedence = PR_LOWEST;
-
+			case '*':
+			case '+':
+				curToken->precedence = PR_KLEENE;
 				break;
 
             default:
@@ -129,11 +126,4 @@ seek* tokenize(const char *inputString, char length) {
 
     tokenStream->current = tokenStream->start;
     return tokenStream;
-}
-
-seek *readCGName(seek *restrict tokenStream, const char *inputString, char *restrict position, char len) {
-	char *buffer = (char *) calloc(1, sizeof());
-
-	char i = position[0];
-	state = 
 }

@@ -39,32 +39,41 @@ int main_() {
 }
 
 int main() {
-	char *testSuite[17] = {
-			"mario",
-			"a",
-			"mario|luigi",
-			"\\d",
-			"\\|",
-			"(ab)c",
-			"<abc>",
-			"@1",
-			"a*v",
-			"c+c",
-			"[afd]",
-			"[a-x1]",
-			"[1a-x2]",
-			"a{4, 7}",
-			"(y){3, 5}c",
-			"(ya){1,                }",
-			"afd*{3}"
+	char *testSuite[6] = {
+			"(7*e*|d*)l",
+			"I'm down bad ngl",
+			"a*bc|d*",
+			"ye(a*|v)",
+			"yeah (boi)*",
+			// "(abc",
+			// "wrong)",
+			"colo(u|)r"
 	};
 
-	int i = 2;
-	seek *tokenStream;
-	tokenStream = tokenize(testSuite[i], strnlen(testSuite[i], 256));
+	clock_t begin, end;
+	double time_spent;
 
-	regexNode *tree = parse(tokenStream, PR_LOWEST);
-	print_regExp(tree);
+	int i;
+	for (i = 0; i < 6; i++) {
+		seek *tokenStream;
+
+		begin = clock();
+		tokenStream = tokenize(testSuite[i], strnlen(testSuite[i], 256));
+		end = clock();
+		time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+
+		printf("Tokenizing \"%s\": %f\n", testSuite[i], time_spent);
+
+		begin = clock();
+		regexNode *tree = parse(tokenStream, PR_LOWEST);
+		end = clock();
+		time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+
+		printf("parsing \"%s\": %f\n", testSuite[i], time_spent);
+
+		print_regExp(tree);
+		puts("------");
+	}
 
 	return 0;
 }

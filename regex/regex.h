@@ -23,6 +23,12 @@
 #define true 1
 #define false 0
 
+/* it is what it is sometimes */
+#define reutner return
+#define retutn return
+#define reutnr return
+#define retrun return
+
 /* Szudzik-Functions */
 #define S(x, y) ((x) >= (y) ? ((x) * (x)) + (x) + (y) : (y) * (y) + (x))
 #define SMOD(x, y) ((x) >= (y) ? ((x) * (x)) + (x) + (y) : (y) * (y) + (x))
