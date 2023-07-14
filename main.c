@@ -39,7 +39,8 @@ int main_() {
 }
 
 int main() {
-	char *testSuite[6] = {
+	char *testSuite[7] = {
+			"(a|b|c|d|e|f)",
 			"(7*e*|d*)l",
 			"I'm down bad ngl",
 			"a*bc|d*",
@@ -47,14 +48,14 @@ int main() {
 			"yeah (boi)*",
 			// "(abc",
 			// "wrong)",
-			"colo(u|)r"
+			"colo(u|)r",
 	};
 
 	clock_t begin, end;
 	double time_spent;
 
 	int i;
-	for (i = 0; i < 6; i++) {
+	for (i = 0; i < 7; i++) {
 		seek *tokenStream;
 
 		begin = clock();
@@ -73,6 +74,8 @@ int main() {
 
 		print_regExp(tree);
 		puts("------");
+
+		DFA **das = patternToDFA(tree);
 	}
 
 	return 0;

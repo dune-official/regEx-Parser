@@ -6,8 +6,7 @@
  * This function should provide a significant improvement in speed,
  * when, for example, matching against a very long input and using a very large and/or convoluted tree */
 DFA **patternToDFA(regexNode *pattern) {
-	regexNode *newTree, *ptrR;
-	ptrR = pattern;
+	regexNode *newTree, *ptrR = pattern;
 
 	queue *q = initialize_queue();
 
@@ -31,12 +30,13 @@ DFA **patternToDFA(regexNode *pattern) {
 		for (i = 0; i < 94; i++) {
 
 			newTree = copyTree(ptrR);
-			newTree = derive(newTree, i+32);
+			newTree = derive(newTree, i + 32);
 
 			if (NULL != (ptr = hash_getDFA(newTree->hash))) {
 				currentDFA->alphabet[i] = ptr;
 			} else {
 				ptr = addState(dfa, ++dfaSize);
+				puts("addstate");
 				ptr->is_final = isNullable(newTree);
 
 				hash_insert(newTree->hash, newTree, ptr);
@@ -113,13 +113,13 @@ _Bool match(regexNode *restrict pattern, char *string, int matchLen) {
 	for (i = 0; i < matchLen; i++) {
 		pattern = derive(pattern, string[i]);
 
-        /* preemptively exit the match process, since an empty string will never be more than empty */
-        switch (pattern->type) {
-            case SYMBOL:
-                if (pattern->symbol == EMPTY) {
-                    return false;
-                }
-        }
+		/* preemptively exit the match process, since an empty string will never be more than empty */
+		switch (pattern->type) {
+			case SYMBOL:
+				if (pattern->symbol == EMPTY) {
+					return false;
+				}
+		}
 	}
 	return isNullable(pattern);
 }

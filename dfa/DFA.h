@@ -17,11 +17,17 @@ typedef struct DFA_state {
 } DFA;
 
 extern DFA **getDFA(unsigned char stateCount);
+
 extern DFA *addState(DFA **dfaArray, int newStateCount);
+
 extern void setState(DFA **dfa, char state, char symbol, char nextState);
+
 extern void addFinal(DFA **dfa, char state);
-extern _Bool matchDFA(DFA **restrict dfa, const char * restrict string, int matchLen);
+
+extern _Bool matchDFA(DFA **restrict dfa, const char *restrict string, int matchLen);
+
 int *matchAnyDFA(DFA **restrict dfa, const char *restrict string, int matchLen);
+
 extern void printDelta(DFA **dfa, int stateCount);
 
 #endif

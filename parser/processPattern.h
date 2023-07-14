@@ -24,15 +24,18 @@ enum Precedence {
 };
 
 
-
-extern seek* tokenize(const char *inputString, char length);
+extern seek *tokenize(const char *inputString, char length);
 
 extern regexNode *parse(seek *tokenstream, char precedence);
+
 extern void advance(seek *tokenstream);
 
 extern regexNode *parseGroup(seek *tokenstream);
+
 extern regexNode *parseEscaped(seek *tokenstream, char escaped);
+
 regexNode *parseConcat(regexNode *restrict LHS, seek *restrict tokenstream);
+
 regexNode *parseUnion(regexNode *restrict LHS, seek *restrict tokenstream);
 
 #endif

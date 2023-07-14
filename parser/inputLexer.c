@@ -1,19 +1,19 @@
 #include "processPattern.h"
 #include "../seekable/seekable.h"
 
-seek* tokenize(const char *inputString, char length) {
-    seek *tokenStream = initialize_seekable();
-    token *curToken;
+seek *tokenize(const char *inputString, char length) {
+	seek *tokenStream = initialize_seekable();
+	token *curToken;
 
-    int i;
-    for (i = 0; i < length; i++) {
+	int i;
+	for (i = 0; i < length; i++) {
 
-        /* initialize token stream */
-        curToken = (token *) calloc(1, sizeof(*curToken));
-        if (NULL == curToken) {
-            fputs("Failed to initialize buffer", stderr);
-            exit(1);
-        }
+		/* initialize token stream */
+		curToken = (token *) calloc(1, sizeof(*curToken));
+		if (NULL == curToken) {
+			fputs("Failed to initialize buffer", stderr);
+			exit(1);
+		}
 
 		if (inputString[i] == '\\') {
 
@@ -56,9 +56,9 @@ seek* tokenize(const char *inputString, char length) {
 					curToken->isNud = 1;
 					break;
 
-				/* this one is a bit more special... the backslash before a default character means,
-				 * that the lexer is supposed to skip the current token in the input, which is not in the capabilities
-				 * of a normal DFA */
+					/* this one is a bit more special... the backslash before a default character means,
+					 * that the lexer is supposed to skip the current token in the input, which is not in the capabilities
+					 * of a normal DFA */
 				default:
 					curToken->type = SYMBOL;
 					curToken->content = inputString[i];
@@ -76,9 +76,9 @@ seek* tokenize(const char *inputString, char length) {
 		}
 
 		curToken->type = inputString[i];
-        switch (inputString[i]) {
-            case '[':
-                curToken->precedence = PR_UNION;
+		switch (inputString[i]) {
+			case '[':
+				curToken->precedence = PR_UNION;
 				curToken->isNud = 1;
 				break;
 			case '^':
@@ -107,23 +107,23 @@ seek* tokenize(const char *inputString, char length) {
 				curToken->precedence = PR_KLEENE;
 				break;
 
-            default:
+			default:
 				curToken->type = SYMBOL;
-                curToken->content = inputString[i];
-                curToken->precedence = PR_LOWEST;
-                curToken->isNud = 1;
-                break;
-        }
+				curToken->content = inputString[i];
+				curToken->precedence = PR_LOWEST;
+				curToken->isNud = 1;
+				break;
+		}
 
-        /* insert into seeker */
-        if (i > 0) {
-            insert_node_right(tokenStream);
-            seek_right(tokenStream);
-        }
+		/* insert into seeker */
+		if (i > 0) {
+			insert_node_right(tokenStream);
+			seek_right(tokenStream);
+		}
 
-        set_current((void *) curToken, tokenStream->current);
-    }
+		set_current((void *) curToken, tokenStream->current);
+	}
 
-    tokenStream->current = tokenStream->start;
-    return tokenStream;
+	tokenStream->current = tokenStream->start;
+	return tokenStream;
 }

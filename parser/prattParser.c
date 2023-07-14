@@ -63,7 +63,7 @@ regexNode *parse(seek *node, char precedence) {
 	token *tkn = peek(node);
 	if (!tkn->isNud) {
 		fputs("Unexpected token in input stream: ", stderr);
-		putc(tkn->type+48, stderr);
+		putc(tkn->type + 48, stderr);
 		exit(1);
 	}
 
@@ -78,7 +78,6 @@ regexNode *parse(seek *node, char precedence) {
 	/* null denominators */
 	switch (tkn->type) {
 		case SYMBOL:
-			printf("parsing symbol: %c\n", tkn->content);
 			left = symbol(tkn->content);
 			advance(node);
 			break;
@@ -98,7 +97,7 @@ regexNode *parse(seek *node, char precedence) {
 			break;
 		default:
 			fputs("Unexpected token type in input stream: ", stderr);
-			putc(tkn->type+48, stderr);
+			putc(tkn->type + 48, stderr);
 			exit(1);
 	}
 
@@ -134,7 +133,7 @@ regexNode *parse(seek *node, char precedence) {
 				break;
 			default:
 				fputs("Unexpected token type in input stream: ", stderr);
-				putc(tkn->type+48, stderr);
+				putc(tkn->type + 48, stderr);
 				exit(1);
 		}
 

@@ -19,7 +19,7 @@ regexNode *symbol(char symbol) {
 	return sym;
 }
 
-regexNode *union_re(regexNode *restrict LHS, regexNode * restrict RHS) {
+regexNode *union_re(regexNode *restrict LHS, regexNode *restrict RHS) {
 	if (LHS->type == SYMBOL && LHS->symbol == EMPTY) {
 		free(LHS);
 		return RHS;
@@ -40,29 +40,29 @@ regexNode *concat(regexNode *restrict LHS, regexNode *restrict RHS) {
 	switch (LHS->type) {
 		case SYMBOL:
 			if (LHS->symbol == EMPTY) {
-                free(RHS);
-                return LHS;
+				free(RHS);
+				return LHS;
 			} else if (LHS->symbol == EPSILON) {
-                free(LHS);
-                return RHS;
+				free(LHS);
+				return RHS;
 			}
 	}
 
 	switch (RHS->type) {
 		case SYMBOL:
 			if (RHS->symbol == EMPTY) {
-                free(LHS);
-                return RHS;
+				free(LHS);
+				return RHS;
 			} else if (RHS->symbol == EPSILON) {
-                free(RHS);
-                return LHS;
+				free(RHS);
+				return LHS;
 			}
 	}
 
-    if (LHS->hash == RHS->hash && LHS->type == KLEENE && RHS->type == KLEENE) {
-        free(RHS);
-        return LHS;
-    }
+	if (LHS->hash == RHS->hash && LHS->type == KLEENE && RHS->type == KLEENE) {
+		free(RHS);
+		return LHS;
+	}
 
 	cnt = getNode(CONCAT);
 	cnt->LHS = LHS;
@@ -131,7 +131,8 @@ void print_regExp(const regexNode *root) {
 					putchar('$');
 					break;
 				case EMPTY:
-					putchar('{');putchar('}');
+					putchar('{');
+					putchar('}');
 					break;
 				default:
 					putchar(root->symbol);
@@ -139,7 +140,7 @@ void print_regExp(const regexNode *root) {
 			}
 			break;
 
-        /* 1a debug methode */
+			/* 1a debug methode */
 		default:
 			fputs("This should not have happened - panic mode", stderr);
 			exit(1);
