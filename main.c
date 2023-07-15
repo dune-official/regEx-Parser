@@ -38,8 +38,10 @@ int main_() {
 	return 0;
 }
 
+#define SIZE 7
+
 int main() {
-	char *testSuite[7] = {
+	char *testSuite[SIZE] = {
 			"(a|b|c|d|e|f)",
 			"(7*e*|d*)l",
 			"I'm down bad ngl",
@@ -51,13 +53,26 @@ int main() {
 			"colo(u|)r",
 	};
 
+	char *testSuiteMatch[SIZE] = {
+			"b",
+			"3",
+			"I'm down bad ngl",
+			"aaaaaaaaaabc",
+			"yeaaaaaaa",
+			"yeah boiboiboi",
+			"color"
+	};
+
 	clock_t begin, end;
 	double time_spent;
 
-	int i;
-	for (i = 0; i < 7; i++) {
-		seek *tokenStream;
+	regexNode *tree;
+	seek *tokenStream;
 
+	DFA **dfa;
+
+	int i;
+	for (i = 0; i < SIZE; i++) {
 		begin = clock();
 		tokenStream = tokenize(testSuite[i], strnlen(testSuite[i], 256));
 		end = clock();
@@ -66,7 +81,7 @@ int main() {
 		printf("Tokenizing \"%s\": %f\n", testSuite[i], time_spent);
 
 		begin = clock();
-		regexNode *tree = parse(tokenStream, PR_LOWEST);
+		tree = parse(tokenStream, PR_LOWEST);
 		end = clock();
 		time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
@@ -75,7 +90,7 @@ int main() {
 		print_regExp(tree);
 		puts("------");
 
-		DFA **das = patternToDFA(tree);
+		dfa = patternToDFA(tree);
 	}
 
 	return 0;

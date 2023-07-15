@@ -24,6 +24,7 @@ DFA **getDFA(unsigned char stateCount) {
 }
 
 DFA *addState(DFA **dfa, int newStateCount) {
+	printf("%d\n", newStateCount);
 	DFA **dfaArrayTemp = (DFA **) realloc(dfa, newStateCount);
 	if (NULL == dfaArrayTemp) {
 		fputs("Failed to init buffer", stderr);

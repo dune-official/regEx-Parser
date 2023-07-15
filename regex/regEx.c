@@ -36,7 +36,6 @@ DFA **patternToDFA(regexNode *pattern) {
 				currentDFA->alphabet[i] = ptr;
 			} else {
 				ptr = addState(dfa, ++dfaSize);
-				puts("addstate");
 				ptr->is_final = isNullable(newTree);
 
 				hash_insert(newTree->hash, newTree, ptr);
