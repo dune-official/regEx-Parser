@@ -91,9 +91,7 @@ regexNode *copyTree(regexNode *child) {
 	if (child->type == SYMBOL) {
 		newNode->symbol = child->symbol;
 	} else {
-        if (NULL != child->LHS) {
-            newNode->LHS = copyTree(child->LHS);
-        }
+        newNode->LHS = copyTree(child->LHS);
 
 		if (NULL != child->RHS) {
 			newNode->RHS = copyTree(child->RHS);
