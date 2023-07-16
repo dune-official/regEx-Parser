@@ -4,20 +4,20 @@
 
 /* Generates the minimized DFA for matching the given regex pattern.
  * This function should provide a significant improvement in speed,
- * when, for example, matching against a very long input and using a very large and/or convoluted tree */
-DFA **patternToDFA(regexNode *pattern) {
+ * when, for example, matching against a very long input and using a very large and/or right leaning tree */
+dfa *patternToDFA(regexNode *pattern) {
 	regexNode *newTree, *ptrR = pattern;
 
 	queue *q = initialize_queue();
 
-	DFA **dfa = getDFA(1);
-	dfa[0]->is_final = isNullable(ptrR);
-	DFA *currentDFA, *ptr;
-	int dfaSize = 1;
+	dfa *dfa = get_dfa(1);
+	dfa->start->is_final = isNullable(ptrR);
+	dfa_state *currentDFA, *ptr;
 
 	unsigned long long ptrRHash;
 
-	hash_insert(ptrR->hash, ptrR, dfa[0]);
+    /* start with the initial state (the entire tree) */
+	hash_insert(ptrR->hash, ptrR, dfa->start);
 	enqueue(ptrR->hash, q);
 
 	char i;
@@ -30,13 +30,19 @@ DFA **patternToDFA(regexNode *pattern) {
 		for (i = 0; i < 94; i++) {
 
 			newTree = copyTree(ptrR);
-			newTree = derive(newTree, i + 32);
+			newTree = derive(newTree, (char) (i + 32));
 
 			if (NULL != (ptr = hash_getDFA(newTree->hash))) {
 				currentDFA->alphabet[i] = ptr;
 			} else {
-				ptr = addState(dfa, ++dfaSize);
+				ptr = get_state();
 				ptr->is_final = isNullable(newTree);
+
+                if (EMPTY == newTree->symbol) {
+                    ptr->is_dead = 1;
+                }
+
+                currentDFA->alphabet[i] = ptr;
 
 				hash_insert(newTree->hash, newTree, ptr);
 				enqueue(newTree->hash, q);
@@ -107,7 +113,7 @@ regexNode *derive(regexNode *rN, char a) {
 	}
 }
 
-_Bool match(regexNode *restrict pattern, char *string, int matchLen) {
+__attribute__((unused)) _Bool match(regexNode *restrict pattern, char *string, int matchLen) {
 	int i;
 	for (i = 0; i < matchLen; i++) {
 		pattern = derive(pattern, string[i]);

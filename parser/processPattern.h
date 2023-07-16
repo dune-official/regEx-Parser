@@ -2,7 +2,6 @@
 #define REGEX_PARSER_PROCESSPATTERN_H
 
 #include "../queue/queue.h"
-#include "../stack/stack.h"
 #include "../seekable/seekable.h"
 #include "../seekable/seekable.h"
 

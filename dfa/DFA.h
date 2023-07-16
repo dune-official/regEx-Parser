@@ -1,5 +1,5 @@
-#ifndef REXEX_PARSER_DFA_H
-#define REXEX_PARSER_DFA_H
+#ifndef REGEX_PARSER_DFA_H
+#define REGEX_PARSER_DFA_H
 
 #define false 0
 #define true 1
@@ -9,25 +9,27 @@
 #include <stdlib.h>
 
 typedef struct DFA_state {
-	_Bool is_final;
-	unsigned char index;
+    _Bool is_final, is_dead;
 
-	struct DFA_state *alphabet[94];
+    struct DFA_state *alphabet[94];
+} dfa_state;
 
-} DFA;
+typedef struct DFA_wrapper {
+    struct DFA_state *start;
+    __attribute__((unused)) int state_count;
+} dfa;
 
-extern DFA **getDFA(unsigned char stateCount);
 
-extern DFA *addState(DFA **dfaArray, int newStateCount);
+extern dfa *get_dfa(unsigned char stateCount);
 
-extern void setState(DFA **dfa, char state, char symbol, char nextState);
+extern dfa_state *get_state();
 
-extern void addFinal(DFA **dfa, char state);
+extern _Bool matchDFA(dfa *restrict dfa, const char *restrict string, int matchLen);
 
-extern _Bool matchDFA(DFA **restrict dfa, const char *restrict string, int matchLen);
+__attribute__((unused)) extern _Bool matchDFAPreemptive(dfa *restrict dfa, const char *restrict string, int strLen);
 
-int *matchAnyDFA(DFA **restrict dfa, const char *restrict string, int matchLen);
+__attribute__((unused)) int *matchAnyDFA(dfa *restrict dfa, const char *restrict string, int matchLen);
 
-extern void printDelta(DFA **dfa, int stateCount);
+__attribute__((unused)) extern void printDelta(dfa *dfa_state);
 
 #endif

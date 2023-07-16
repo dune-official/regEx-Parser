@@ -1,37 +1,37 @@
 #include "seekable.h"
 
 seek *initialize_seekable() {
-	seek *toreturn = (seek *) calloc(1, sizeof(*toreturn));
-	if (NULL == toreturn) {
+	seek *toReturn = (seek *) calloc(1, sizeof(*toReturn));
+	if (NULL == toReturn) {
 		fputs("Failed to initialize buffer", stderr);
 		exit(1);
 	}
 
-	toreturn->start = (struct SeekableNode *) calloc(1, sizeof(*toreturn->start));
-	if (NULL == toreturn->start) {
+    toReturn->start = (struct SeekableNode *) calloc(1, sizeof(*toReturn->start));
+	if (NULL == toReturn->start) {
 		fputs("Failed to initialize buffer", stderr);
 		exit(1);
 	}
-	toreturn->current = toreturn->start;
+    toReturn->current = toReturn->start;
 
 	/* initializing the sentinel nodes right and left of the current position */
 	/* todo: Dear coder, I urge you to NOT move by those sentinel nodes, for all that is beloved and holy */
 
-	toreturn->start->previous = (struct SeekableNode *) calloc(1, sizeof(*toreturn->start->previous));
-	if (NULL == toreturn->start->previous) {
+    toReturn->start->previous = (struct SeekableNode *) calloc(1, sizeof(*toReturn->start->previous));
+	if (NULL == toReturn->start->previous) {
 		fputs("Failed to initialize buffer", stderr);
 		exit(1);
 	}
-	toreturn->start->previous->next = toreturn->start;
+    toReturn->start->previous->next = toReturn->start;
 
-	toreturn->start->next = (struct SeekableNode *) calloc(1, sizeof(*toreturn->start->next));
-	if (NULL == toreturn->start->previous) {
+    toReturn->start->next = (struct SeekableNode *) calloc(1, sizeof(*toReturn->start->next));
+	if (NULL == toReturn->start->previous) {
 		fputs("Failed to initialize buffer", stderr);
 		exit(1);
 	}
-	toreturn->start->next->previous = toreturn->start;
+    toReturn->start->next->previous = toReturn->start;
 
-	return toreturn;
+	return toReturn;
 }
 
 void *peek(seek *node) {
@@ -48,24 +48,9 @@ void *peek_right(seek *node) {
 	return NULL;
 }
 
-void *peek_left(seek *node) {
-	if (NULL != node->current->previous && NULL != node->current->previous->object) {
-		return node->current->previous->object;
-	}
-	return NULL;
-}
-
 char seek_right(seek *node) {
 	if (NULL != node->current->next) {
 		node->current = node->current->next;
-		return 0;
-	}
-	return -1;
-}
-
-char seek_left(seek *node) {
-	if (NULL != node->current->previous) {
-		node->current = node->current->previous;
 		return 0;
 	}
 	return -1;
@@ -84,12 +69,6 @@ void set_right(void *restrict object, struct SeekableNode *restrict node) {
 	}
 }
 
-void set_left(void *restrict object, struct SeekableNode *restrict node) {
-	if (NULL != node->previous) {
-		set_current(object, node->previous);
-	}
-}
-
 void insert_node_right(seek *node) {
 	struct SeekableNode *ptr = calloc(1, sizeof(*ptr));
 	if (NULL == ptr) {
@@ -105,21 +84,4 @@ void insert_node_right(seek *node) {
 
 	ptr->previous = node->current;
 	node->current->next = ptr;
-}
-
-void insert_node_left(seek *node) {
-	struct SeekableNode *ptr = calloc(1, sizeof(*ptr));
-	if (NULL == ptr) {
-		fputs("Failed to initialize buffer", stderr);
-		exit(1);
-	}
-
-	if (NULL != node->current->previous) {
-		struct SeekableNode *ptr2 = node->current->previous;
-		ptr->previous = ptr2;
-		ptr2->next = ptr;
-	}
-
-	ptr->next = node->current;
-	node->current->previous = ptr;
 }

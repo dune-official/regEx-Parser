@@ -13,21 +13,13 @@
 #define UNION 0x2
 #define KLEENE 0x3
 #define CONCAT 0x4
-#define POSITIVE 0x5
 
 /* RegEx special char */
-#define EMPTY 0x1e
-#define EPSILON 0x1f
+#define EMPTY 0x80
+#define EPSILON 0x81
 
-#define TENMEG 10485760
 #define true 1
 #define false 0
-
-/* it is what it is sometimes */
-#define reutner return
-#define retutn return
-#define reutnr return
-#define retrun return
 
 /* Szudzik-Functions */
 #define S(x, y) ((x) >= (y) ? ((x) * (x)) + (x) + (y) : (y) * (y) + (x))
@@ -63,7 +55,7 @@ extern _Bool isNullable(regexNode *rN);
 extern regexNode *derive(regexNode *rN, char a);
 
 /* match functions */
-extern _Bool match(regexNode *restrict pattern, char *restrict string, int matchLen);
+__attribute__((unused)) extern _Bool match(regexNode *restrict pattern, char *restrict string, int matchLen);
 // extern regexMatchResult *matchAny(regexNode *pattern, char *string);
 
 /* tree functions */
@@ -72,6 +64,6 @@ extern void print_regExp(const regexNode *root);
 extern regexNode *copyTree(regexNode *child);
 // extern regexNode *parse(char *string);
 
-extern DFA **patternToDFA(regexNode *pattern);
+extern dfa *patternToDFA(regexNode *pattern);
 
 #endif

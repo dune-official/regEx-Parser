@@ -1,5 +1,4 @@
 #include "processPattern.h"
-#include "../seekable/seekable.h"
 
 seek *tokenize(const char *inputString, char length) {
 	seek *tokenStream = initialize_seekable();

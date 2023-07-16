@@ -37,7 +37,7 @@ void lookahead_concat(seek *tokenstream) {
 	}
 }
 
-/* lac = "Look ahead control" */
+/* lac = "LookAhead control" */
 void lookahead_epsilon(seek *tokenstream, char lac) {
 	token *lookahead, *new;
 	if (NULL != (lookahead = (token *) peek_right(tokenstream)) && lookahead->type == lac) {
@@ -56,88 +56,126 @@ void lookahead_epsilon(seek *tokenstream, char lac) {
 	}
 }
 
-// we supply a token stream
-regexNode *parse(seek *node, char precedence) {
+/* parses the supplied tokenstream with the pratt parser method. it is supposed to be initialized with the lowest
+ * existing precedence */
+regexNode *parse(seek *tokenstream, char precedence) {
 	regexNode *left;
+	token *tkn = peek(tokenstream);
 
-	token *tkn = peek(node);
+    char errType;
 	if (!tkn->isNud) {
-		fputs("Unexpected token in input stream: ", stderr);
-		putc(tkn->type + 48, stderr);
+
+        switch (tkn->type) {
+            case SYMBOL:
+                errType = tkn->content;
+                break;
+            case BACKSLASH:
+                errType = '\\';
+                break;
+            case CONCAT:
+                errType = '~';
+                break;
+            default:
+                errType = tkn->type;
+        }
+
+		fprintf(stderr, "Unexpected token in input stream: %c", errType);
 		exit(1);
 	}
 
 	/* at first, we check for the null denotations */
-
-	/* but before that, we'll take the lookahead in the tokenstream and determine if it is also a null denotation,
-		 * and if yes, we add a concat token */
 	if (tkn->type != '(') {
-		lookahead_concat(node);
+		lookahead_concat(tokenstream);
 	}
 
 	/* null denominators */
 	switch (tkn->type) {
 		case SYMBOL:
 			left = symbol(tkn->content);
-			advance(node);
+			advance(tokenstream);
 			break;
 		case '(':
 			/* if the following token is a "|", we can assume that there has to be an EPSILON */
-			lookahead_epsilon(node, '|');
-			left = parseGroup(node);
-			advance(node);
+			lookahead_epsilon(tokenstream, '|');
+			left = parseGroup(tokenstream);
+			advance(tokenstream);
 			break;
 		case '[':
 			puts("Parsing set...");
-			advance(node);
+			advance(tokenstream);
 			break;
 		case BACKSLASH:
-			left = parseEscaped(node, tkn->content);
-			advance(node);
+			left = parseEscaped(tokenstream, tkn->content);
+			advance(tokenstream);
 			break;
 		default:
-			fputs("Unexpected token type in input stream: ", stderr);
-			putc(tkn->type + 48, stderr);
-			exit(1);
-	}
+            switch (tkn->type) {
+                case SYMBOL:
+                    errType = tkn->content;
+                    break;
+                case BACKSLASH:
+                    errType = '\\';
+                    break;
+                case CONCAT:
+                    errType = '~';
+                    break;
+                default:
+                    errType = tkn->type;
+            }
 
+            fprintf(stderr, "Unexpected token in input stream: %c", errType);
+            exit(1);
+	}
 
 	/* left denominators */
 	token *next_token;
-	if (NULL == (next_token = (token *) peek(node))) {
+	if (NULL == (next_token = (token *) peek(tokenstream))) {
 		return left;
 	}
 
 	while (precedence < next_token->precedence) {
 		switch (next_token->type) {
 			case '*':
-				lookahead_concat(node);
+				lookahead_concat(tokenstream);
 				left = kleene(left);
-				advance(node);
+				advance(tokenstream);
 				break;
 			case '+':
-				lookahead_concat(node);
+				lookahead_concat(tokenstream);
 				left = concat(left, kleene(copyTree(left)));
-				advance(node);
+				advance(tokenstream);
 				break;
 			case '{':
 				puts("Parsing quantifier");
 				break;
 			case '|':
 				/* if the following token is a ")" or EOF, we can assume that there has to be an EPSILON */
-				lookahead_epsilon(node, ')');
-				left = parseUnion(left, node);
+				lookahead_epsilon(tokenstream, ')');
+				left = parseUnion(left, tokenstream);
 				break;
 			case CONCAT:
-				left = parseConcat(left, node);
+				left = parseConcat(left, tokenstream);
 				break;
-			default:
-				fputs("Unexpected token type in input stream: ", stderr);
-				putc(tkn->type + 48, stderr);
+            default:
+                switch (tkn->type) {
+                    case SYMBOL:
+                        errType = tkn->content;
+                        break;
+                    case BACKSLASH:
+                        errType = '\\';
+                        break;
+                    case CONCAT:
+                        errType = '~';
+                        break;
+                    default:
+                        errType = tkn->type;
+                }
+
+                fprintf(stderr, "Unexpected token in input stream: %c", errType);
 				exit(1);
 		}
 
-		if (NULL == (next_token = (token *) peek(node))) {
+		if (NULL == (next_token = (token *) peek(tokenstream))) {
 			break;
 		}
 	}

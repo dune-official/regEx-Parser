@@ -3,7 +3,7 @@
 regexNode *getNode(unsigned char regexType) {
 	regexNode *newNode = (regexNode *) calloc(1, sizeof(*newNode));
 	if (NULL == newNode) {
-		fputs("Failed to init buffer", stderr);
+		fputs("Failed to initialize buffer", stderr);
 		exit(1);
 	}
 	newNode->type = regexType;
@@ -91,7 +91,10 @@ regexNode *copyTree(regexNode *child) {
 	if (child->type == SYMBOL) {
 		newNode->symbol = child->symbol;
 	} else {
-		newNode->LHS = copyTree(child->LHS);
+        if (NULL != child->LHS) {
+            newNode->LHS = copyTree(child->LHS);
+        }
+
 		if (NULL != child->RHS) {
 			newNode->RHS = copyTree(child->RHS);
 		}
@@ -100,7 +103,7 @@ regexNode *copyTree(regexNode *child) {
 	return newNode;
 }
 
-/* prints out the regex statement in Infix Notation */
+/* prints out the regex statement in infix notation */
 void print_regExp(const regexNode *root) {
 	switch (root->type) {
 		case CONCAT:

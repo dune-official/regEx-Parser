@@ -8,7 +8,7 @@ typedef struct QueueElement {
 queue *initialize_queue() {
 	queue *aux_node = (queue *) calloc(1, sizeof(*aux_node));
 	if (NULL == aux_node) {
-		fputs("Could not allocate memory to <<queue *aux_node>>", stderr);
+		fputs("Failed to initialize buffer", stderr);
 		exit(-1);
 	}
 	queue_inner *queue_start = NULL;
@@ -23,7 +23,7 @@ void enqueue(unsigned long long to_enqueue, queue* queue) {
 	if (NULL == queue->queue_end && NULL == queue->queue_start) {
 		queue->queue_end = calloc(1, sizeof(*queue->queue_end));
 		if (NULL == queue->queue_end) {
-			fputs("Failed to allocate memory to <<queue *queue->queue end>>", stderr);
+			fputs("Failed to initialize buffer", stderr);
 			exit(-1);
 		}
 		queue->queue_end->element = to_enqueue;
@@ -33,7 +33,7 @@ void enqueue(unsigned long long to_enqueue, queue* queue) {
 		/* the edge case here is that the end pointer points to the same element as queue_start */
 		queue_inner *queue_walker = calloc(1, sizeof(*queue_walker));
 		if (NULL == queue_walker) {
-			fputs("Could not allocate memory to <<queue_inner *queue_walker>>", stderr);
+			fputs("Failed to initialize buffer", stderr);
 			exit(-1);
 		}
 		queue_walker->element = to_enqueue;
@@ -62,15 +62,6 @@ unsigned long long dequeue(queue *queue) {
 		}
 		free(ptr);
 		return to_return;
-	}
-}
-
-unsigned long long peek_queue(queue *queue) {
-	if (NULL == queue->queue_end) {
-		fputs("Queue is empty", stderr);
-		exit(1);
-	} else {
-		return queue->queue_end->element;
 	}
 }
 

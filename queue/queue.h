@@ -9,7 +9,6 @@ typedef struct AuxiliaryNodeQ {
 
 extern void enqueue(unsigned long long to_enqueue, queue *queue);
 extern unsigned long long dequeue(queue *queue);
-extern unsigned long long peek_queue(queue *queue);
 extern char is_empty_queue(queue *queue);
 extern queue *initialize_queue();
 
