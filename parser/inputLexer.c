@@ -93,7 +93,6 @@ seek *tokenize(const char *inputString, char length) {
 			case '}':
 			case '-':
 			case ',':
-			case ':':
 			case '<':
 				curToken->precedence = PR_LOWEST;
 				break;
