@@ -7,20 +7,10 @@
 #define SIZE 8
 
 int main() {
-	char *pattern = "git commit (\\-m|\\-\\-message) \\w";
-	// char *pattern = "\\w";
-	seek *tokenStream = tokenize(pattern, (char) strnlen(pattern, 256));
-	regexNode *tree = parse(tokenStream, PR_LOWEST);
-
-	print_regExp(tree);
-	return 0;
-}
-
-int main_() {
 	char *testSuite[SIZE] = {
 			"(a|b|c|d|e|f)",
 			"(7*e*|d*)l",
-			"I'm down bad ngl",
+			"I+",
 			"a*bc|d*",
 			"ye(a*|v)",
 			"yeah (boi)*",

@@ -97,7 +97,6 @@ regexNode *parse(seek *tokenstream, char precedence) {
 
 	/* at first, we check for the null denotations */
 	if (tkn->type != '(' && tkn->type != '[') {
-        puts("Looking ahead");
 		lookahead_concat(tokenstream);
 	}
 
