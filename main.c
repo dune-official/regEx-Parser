@@ -4,7 +4,7 @@
 
 // #include <fcntl.h>
 
-#define SIZE 7
+#define SIZE 8
 
 int main() {
 	char *pattern = "git commit (\\-m|\\-\\-message) \\w";
@@ -25,6 +25,7 @@ int main_() {
 			"ye(a*|v)",
 			"yeah (boi)*",
 			"colo(u|)r",
+            "\\x:\\x",
 	};
 
 	char *testSuiteMatch[SIZE] = {
@@ -34,7 +35,8 @@ int main_() {
 			"aaaaaaaaaabc",
 			"yeaaaaaaa",
 			"yeah boiboiboi",
-			"color"
+			"color",
+            "7"
 	};
 
 	clock_t begin, end;
@@ -61,6 +63,9 @@ int main_() {
 
 		printf("parsing \"%s\": %f\n", testSuite[i], time_spent);
 
+        print_regExp(tree);
+        putchar('\n');
+
         begin = clock();
         dfa = patternToDFA(tree);
         end = clock();
@@ -69,7 +74,6 @@ int main_() {
         printf("pattern 2 dfa \"%s\": %f\n", testSuite[i], time_spent);
 
         begin = clock();
-        // _Bool matched = matchDFAPreemptive(dfa, testSuiteMatch[i], strnlen(testSuiteMatch[i],  256));
         _Bool matched = matchDFA(dfa, testSuiteMatch[i], (int) strnlen(testSuiteMatch[i],  256));
         end = clock();
         time_spent = (double)(end - begin) / CLOCKS_PER_SEC;

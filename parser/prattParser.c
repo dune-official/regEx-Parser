@@ -1,17 +1,29 @@
 #include "processPattern.h"
 
-regexNode *getDigit() {
-	return NULL;
+/* recursively produces a balanced tree (as balanced as possible) with the digits */
+regexNode *balancedTree(char from, char to) {
+    if (from == to) {
+        return symbol((char) (from + 48));
+    }
+
+    char difference = (char) (to - from);
+    char diffHalf = (char) (difference / 2);
+
+    if ((difference & 1) == 1) {
+        return union_re(balancedTree(from, (char) (from+diffHalf)), balancedTree((char) (to-diffHalf), to));
+    } else {
+        return union_re(balancedTree(from, (char) (from+diffHalf-1)), balancedTree((char) (to-diffHalf), to));
+    }
 }
 
-regexNode *getPrintable() {
-	return getDigit();
+regexNode *getAlphanum() {
+	return union_re(balancedTree(17, 42), balancedTree(49, 74));
 }
 
 
 /* Equals [0-9a-f] */
 regexNode *getHex() {
-	return getDigit();
+    return union_re(balancedTree(17, 22), balancedTree(49, 54));
 }
 
 void advance(seek *node) {
@@ -84,7 +96,8 @@ regexNode *parse(seek *tokenstream, char precedence) {
 	}
 
 	/* at first, we check for the null denotations */
-	if (tkn->type != '(') {
+	if (tkn->type != '(' && tkn->type != '[') {
+        puts("Looking ahead");
 		lookahead_concat(tokenstream);
 	}
 
@@ -105,8 +118,8 @@ regexNode *parse(seek *tokenstream, char precedence) {
 			advance(tokenstream);
 			break;
 		case BACKSLASH:
-			left = parseEscaped(tokenstream, tkn->content);
-			advance(tokenstream);
+			left = parseEscaped(tkn->content);
+            advance(tokenstream);
 			break;
 		default:
             switch (tkn->type) {
@@ -202,20 +215,20 @@ regexNode *parseGroup(seek *tokenstream) {
 	return expression;
 }
 
-regexNode *parseEscaped(seek *node, char escaped) {
+regexNode *parseEscaped(char escaped) {
 	switch (escaped) {
 		case 'd':
-			return getDigit();
+			return balancedTree(0, 9);
 		case 'x':
-			return getHex();
+			return union_re(balancedTree(0, 9), getHex());
 		case 'w':
-			return getPrintable();
+			return union_re(union_re(balancedTree(0, 9), getAlphanum()), symbol('_'));
 		case 'n':
 			return symbol(10);
 		default:
 			fprintf(stderr, "Unexpected escape character: \\%c\n", escaped);
+            exit(1);
 	}
-	return NULL;
 }
 
 regexNode *parseUnion(regexNode *restrict LHS, seek *restrict tokenstream) {

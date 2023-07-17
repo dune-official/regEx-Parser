@@ -39,7 +39,6 @@ typedef struct regexNodeStruct {
 // } regexMatchResult;
 
 /* regexNode constructors */
-extern regexNode *getNode(unsigned char regexType);
 
 extern regexNode *symbol(char symbol);
 

@@ -6,7 +6,7 @@
 hash *h_array[MAXSIZE];
 
 int hash_function(unsigned long long value) {
-	return (int) value % MAXSIZE;
+	return (int) (value % MAXSIZE);
 }
 
 dfa_state *hash_getDFA(unsigned long long key) {
