@@ -15,7 +15,7 @@ int main() {
 			"ye(a*|v)",
 			"yeah (boi)*",
 			"colo(u|)r",
-            "\\x:\\x",
+            "\\x:\\x"
 	};
 
 	char *testSuiteMatch[SIZE] = {

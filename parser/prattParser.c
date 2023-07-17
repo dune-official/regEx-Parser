@@ -113,7 +113,7 @@ regexNode *parse(seek *tokenstream, char precedence) {
 			advance(tokenstream);
 			break;
 		case '[':
-			puts("Parsing set...");
+			left = parseSet(tokenstream);
 			advance(tokenstream);
 			break;
 		case BACKSLASH:
@@ -240,4 +240,8 @@ regexNode *parseConcat(regexNode *restrict LHS, seek *restrict tokenstream) {
 	advance(tokenstream);
 	regexNode *RHS = parse(tokenstream, PR_CONCAT);
 	return concat(LHS, RHS);
+}
+
+regexNode *parseSet(seek *tokenstream) {
+    return NULL;
 }

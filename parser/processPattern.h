@@ -37,6 +37,8 @@ regexNode *parseConcat(regexNode *restrict LHS, seek *restrict tokenstream);
 
 regexNode *parseUnion(regexNode *restrict LHS, seek *restrict tokenstream);
 
+regexNode *parseSet(seek *restrict tokenstream);
+
 regexNode *balancedTree(char from, char to);
 
 #endif
