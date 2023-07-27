@@ -8,7 +8,7 @@
 #define BACKSLASH 0x6
 
 typedef struct tokenStruct {
-	char type, content;
+	char type, symbol;
 
 	unsigned char precedence: 3;
 	unsigned char isNud: 1;

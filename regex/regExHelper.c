@@ -12,7 +12,7 @@ regexNode *getNode(unsigned char regexType) {
 	return newNode;
 }
 
-regexNode *symbol(char symbol) {
+regexNode *symbol(unsigned char symbol) {
 	regexNode *sym = getNode(SYMBOL);
 	sym->symbol = symbol;
 	sym->hash = (unsigned long long) symbol;

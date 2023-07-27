@@ -4,7 +4,7 @@
 
 // #include <fcntl.h>
 
-#define SIZE 8
+#define SIZE 10
 
 int main() {
 	char *testSuite[SIZE] = {
@@ -15,7 +15,9 @@ int main() {
 			"ye(a*|v)",
 			"yeah (boi)*",
 			"colo(u|)r",
-            "\\x:\\x"
+            "\\x:\\x",
+            "d[oua]n",
+            "d[a-f]t"
 	};
 
 	char *testSuiteMatch[SIZE] = {
@@ -26,7 +28,9 @@ int main() {
 			"yeaaaaaaa",
 			"yeah boiboiboi",
 			"color",
-            "7"
+            "7",
+            "don",
+            "det"
 	};
 
 	clock_t begin, end;

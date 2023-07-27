@@ -40,7 +40,7 @@ typedef struct regexNodeStruct {
 
 /* regexNode constructors */
 
-extern regexNode *symbol(char symbol);
+extern regexNode *symbol(unsigned char symbol);
 
 extern regexNode *union_re(regexNode *restrict LHS, regexNode *restrict RHS);
 

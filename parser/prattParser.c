@@ -21,7 +21,7 @@ regexNode *getAlphanum() {
 }
 
 
-/* Equals [0-9a-f] */
+/* Equals [0-9a-fA-F] */
 regexNode *getHex() {
     return union_re(balancedTree(17, 22), balancedTree(49, 54));
 }
@@ -61,7 +61,7 @@ void lookahead_epsilon(seek *tokenstream, char lac) {
 		new->type = SYMBOL;
 		new->precedence = PR_LOWEST;
 		new->isNud = 1;
-		new->content = EPSILON;
+		new->symbol = EPSILON;
 
 		insert_node_right(tokenstream);
 		set_right((void *) new, tokenstream->current);
@@ -72,14 +72,14 @@ void lookahead_epsilon(seek *tokenstream, char lac) {
  * existing precedence */
 regexNode *parse(seek *tokenstream, char precedence) {
 	regexNode *left;
-	token *tkn = peek(tokenstream);
+	token *tkn = (token *) peek(tokenstream);
 
     char errType;
 	if (!tkn->isNud) {
 
         switch (tkn->type) {
             case SYMBOL:
-                errType = tkn->content;
+                errType = tkn->symbol;
                 break;
             case BACKSLASH:
                 errType = '\\';
@@ -91,7 +91,7 @@ regexNode *parse(seek *tokenstream, char precedence) {
                 errType = tkn->type;
         }
 
-		fprintf(stderr, "Unexpected token in input stream: %c", errType);
+		fprintf(stderr, "Unexpected token in token stream: %c", errType);
 		exit(1);
 	}
 
@@ -103,7 +103,7 @@ regexNode *parse(seek *tokenstream, char precedence) {
 	/* null denominators */
 	switch (tkn->type) {
 		case SYMBOL:
-			left = symbol(tkn->content);
+			left = symbol(tkn->symbol);
 			advance(tokenstream);
 			break;
 		case '(':
@@ -114,16 +114,16 @@ regexNode *parse(seek *tokenstream, char precedence) {
 			break;
 		case '[':
 			left = parseSet(tokenstream);
-			advance(tokenstream);
+            lookahead_concat(tokenstream);
 			break;
 		case BACKSLASH:
-			left = parseEscaped(tkn->content);
+			left = parseEscaped(tkn->symbol);
             advance(tokenstream);
 			break;
 		default:
             switch (tkn->type) {
                 case SYMBOL:
-                    errType = tkn->content;
+                    errType = tkn->symbol;
                     break;
                 case BACKSLASH:
                     errType = '\\';
@@ -135,7 +135,7 @@ regexNode *parse(seek *tokenstream, char precedence) {
                     errType = tkn->type;
             }
 
-            fprintf(stderr, "Unexpected token in input stream: %c", errType);
+            fprintf(stderr, "Unexpected token in token stream: %c", errType);
             exit(1);
 	}
 
@@ -171,7 +171,7 @@ regexNode *parse(seek *tokenstream, char precedence) {
             default:
                 switch (tkn->type) {
                     case SYMBOL:
-                        errType = tkn->content;
+                        errType = tkn->symbol;
                         break;
                     case BACKSLASH:
                         errType = '\\';
@@ -183,7 +183,7 @@ regexNode *parse(seek *tokenstream, char precedence) {
                         errType = tkn->type;
                 }
 
-                fprintf(stderr, "Unexpected token in input stream: %c", errType);
+                fprintf(stderr, "Unexpected token in token stream: %c", errType);
 				exit(1);
 		}
 
@@ -201,12 +201,12 @@ regexNode *parseGroup(seek *tokenstream) {
 
 	token *next_token;
 	if (NULL == (next_token = (token *) peek(tokenstream))) {
-		fputs("Unexpected token type in input stream: EOF (Expected ')')", stderr);
+		fputs("Unexpected token type in token stream: EOF (Expected ')')", stderr);
 		exit(1);
 	}
 
 	if (next_token->type != ')') {
-		fprintf(stderr, "Unexpected token type in input stream: %c (Expected ')') ", next_token->type);
+		fprintf(stderr, "Unexpected token type in token stream: %c (Expected ')') ", next_token->type);
 		exit(1);
 	}
 
@@ -242,6 +242,85 @@ regexNode *parseConcat(regexNode *restrict LHS, seek *restrict tokenstream) {
 	return concat(LHS, RHS);
 }
 
+regexNode *parseUnionSet(regexNode *restrict LHS, seek *restrict tokenstream) {
+    advance(tokenstream);
+    regexNode *RHS = parse(tokenstream, PR_UNION);
+    return union_re(LHS, RHS);
+}
+
+regexNode *parseRange(regexNode *restrict left, seek *restrict tokenstream) {
+    advance(tokenstream);
+
+    unsigned char lContent = left->symbol;
+    free(left);
+
+    token *curToken;
+    if (NULL == (curToken = (token *) peek(tokenstream))) {
+        fputs("Error: Expected token, got EOF", stderr);
+        exit(1);
+    }
+
+    if (curToken->type != SYMBOL) {
+        fputs("Unexpected token type in token stream", stderr);
+        exit(1);
+    }
+
+    if (curToken->symbol < lContent) {
+        fputs("Invalid range target detected", stderr);
+        exit(1);
+    }
+
+    return balancedTree((char) lContent, curToken->symbol);
+}
+
+/* the set adheres to special parsing rules */
 regexNode *parseSet(seek *tokenstream) {
-    return NULL;
+    regexNode *left;
+    token *curToken;
+
+    _Bool isNegated = false;
+
+    advance(tokenstream);
+    if (NULL == (curToken = (token *) peek(tokenstream))) {
+        fputs("Error: Expected token, got EOF", stderr);
+        exit(1);
+    }
+
+    if (!curToken->isNud) {
+        fputs("Unknown token in token stream", stderr);
+        exit(1);
+    }
+
+    switch (curToken->type) {
+        case '^':
+            isNegated = true;
+            break;
+        case SYMBOL:
+            left = symbol(curToken->symbol);
+            advance(tokenstream);
+            break;
+        default:
+            fputs("Unknown token in token stream", stderr);
+            exit(1);
+    }
+
+    token *next_token;
+    do {
+        /* left denominators */
+        if (NULL == (next_token = (token *) peek(tokenstream))) {
+            fputs("Error: Expected token or ']', got EOF", stderr);
+            exit(1);
+        }
+
+        switch (next_token->type) {
+            case '-':
+                left = parseRange(left, tokenstream);
+                break;
+            case SYMBOL:
+                left = parseUnionSet(left, tokenstream);
+                break;
+        }
+    } while (next_token->type != ']');
+
+    return left;
 }
