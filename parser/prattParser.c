@@ -69,7 +69,7 @@ void lookahead_epsilon(seek *tokenstream, char lac) {
 }
 
 /* parses the supplied tokenstream with the pratt parser method. it is supposed to be initialized with the lowest
- * existing precedence */
+ * existing precedence, usually 0 */
 regexNode *parse(seek *tokenstream, char precedence) {
 	regexNode *left;
 	token *tkn = (token *) peek(tokenstream);

@@ -48,14 +48,14 @@ int main() {
 		end = clock();
 		time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
-		printf("Tokenizing \"%s\": %f\n", testSuite[i], time_spent);
+		printf("Tokenizing \"%s\": \x1b[32m%f\x1b[0m\n", testSuite[i], time_spent);
 
 		begin = clock();
 		tree = parse(tokenStream, PR_LOWEST);
 		end = clock();
 		time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
-		printf("parsing \"%s\": %f\n", testSuite[i], time_spent);
+		printf("parsing \"%s\": \x1b[32m%f\x1b[0m\n", testSuite[i], time_spent);
 
         print_regExp(tree);
         putchar('\n');
@@ -65,16 +65,16 @@ int main() {
         end = clock();
         time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
-        printf("pattern 2 dfa \"%s\": %f\n", testSuite[i], time_spent);
+        printf("pattern 2 dfa \"%s\": \x1b[32m%f\x1b[0m\n", testSuite[i], time_spent);
 
         begin = clock();
         _Bool matched = matchDFA(dfa, testSuiteMatch[i], (int) strnlen(testSuiteMatch[i],  256));
         end = clock();
         time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
-        printf("match \"%s\" with \"%s\" preemptively: %f\n", testSuite[i], testSuiteMatch[i], time_spent);
+        printf("match \"%s\" with \"%s\" preemptively: \x1b[32m%f\x1b[0m\n", testSuite[i], testSuiteMatch[i], time_spent);
 
-		puts("------");
+		puts("\x1b[31m------\x1b[0m");
 	}
 
 	return 0;

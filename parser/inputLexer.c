@@ -5,7 +5,6 @@ void tokenizeEscaped(seek *restrict tokenStream,
     int i = pos[0];
     i++;
     switch (inputString[i]) {
-        /* insert as many more special chars as you please */
         case 'd':
         case 'D':
         case 'l':
@@ -21,7 +20,7 @@ void tokenizeEscaped(seek *restrict tokenStream,
         case 'e':
         case 'f':
         case 'k':
-        case 'x':  // my own ( matches hexadecimal chars 😁 )
+        case 'x':  // my own ( matches hexadecimal chars )
         case 'X':
         case 'w':
         case 'W':
@@ -37,9 +36,9 @@ void tokenizeEscaped(seek *restrict tokenStream,
             curToken->isNud = 1;
             break;
 
-            /* this one is a bit more special... the backslash before a default character means,
-             * that the lexer is supposed to skip the current token in the input, which is not in the capabilities
-             * of a normal DFA */
+        /* this one is a bit more special... the backslash before a default character means,
+         * that the lexer is supposed to skip the current token in the input, which is not in the capabilities
+         * of a normal DFA */
         default:
             curToken->type = SYMBOL;
             curToken->symbol = inputString[i];
@@ -77,7 +76,7 @@ void tokenizeSet(seek *restrict tokenStream,
             return;
         }
 
-        /* initialize token stream */
+        /* initialize token */
         curToken = (token *) calloc(1, sizeof(*curToken));
         if (NULL == curToken) {
             fputs("Failed to initialize buffer", stderr);
@@ -107,7 +106,6 @@ void tokenizeSet(seek *restrict tokenStream,
             default:
                 curToken->type = SYMBOL;
                 curToken->symbol = inputString[i];
-                curToken->precedence = PR_LOWEST;
                 curToken->isNud = 1;
         }
 
@@ -125,23 +123,24 @@ void tokenizeSet(seek *restrict tokenStream,
 }
 
 seek *tokenize(const char *inputString, char length) {
-	seek *tokenStream = initialize_seekable();
+    /* initialize token stream */
+    seek *tokenStream = initialize_seekable();
 	token *curToken;
 
 	int i;
 	for (i = 0; i < length; i++) {
 
-		/* initialize token stream */
 		curToken = (token *) calloc(1, sizeof(*curToken));
 		if (NULL == curToken) {
 			fputs("Failed to initialize buffer", stderr);
 			exit(1);
 		}
 
+        /* Escaped character */
 		if (inputString[i] == '\\') {
 
 			if (i + 1 == length) {
-				fputs("Expected token, got: EOF", stderr);
+				fputs("Expected token, got: <EOF>", stderr);
 				exit(1);
 			}
 

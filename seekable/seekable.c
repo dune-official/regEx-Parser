@@ -15,7 +15,7 @@ seek *initialize_seekable() {
     toReturn->current = toReturn->start;
 
 	/* initializing the sentinel nodes right and left of the current position */
-	/* todo: Dear coder, I urge you to NOT move by those sentinel nodes, for all that is beloved and holy */
+	/* todo: Dear coder, I urge you NOT to move by those sentinel nodes, for all that is beloved and holy */
 
     toReturn->start->previous = (struct SeekableNode *) calloc(1, sizeof(*toReturn->start->previous));
 	if (NULL == toReturn->start->previous) {

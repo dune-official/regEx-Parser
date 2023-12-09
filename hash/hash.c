@@ -1,6 +1,4 @@
 #include "hash.h"
-
-/* Feel free to edit the size according to your needs */
 #define MAXSIZE 769
 
 hash *h_array[MAXSIZE];
