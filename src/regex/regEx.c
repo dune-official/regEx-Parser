@@ -3,7 +3,7 @@
 /* Generates the minimized DFA for matching the given regex pattern.
  * This function should provide a significant improvement in speed,
  * when, for example, matching against a very long input and using a very large and/or right leaning tree */
-dfa *regex_patternToDFA(regex_node *pattern) {
+dfa *regex_pattern_to_dfa(regex_node *pattern) {
 	regex_node *newTree, *ptrR = pattern;
 
 	queue *q = queue_initialize();
@@ -24,8 +24,8 @@ dfa *regex_patternToDFA(regex_node *pattern) {
 		ptrRHash = queue_dequeue(q);
 
         /* todo: combine this step into one structure or something */
-		ptrR = hash_getRegExTree(ptrRHash);
-        current_DFA = hash_getDFA(ptrRHash);
+		ptrR = hash_get_regex_tree(ptrRHash);
+        current_DFA = hash_get_dfa(ptrRHash);
 
         /* ASCII printable chars */
 		for (i = 0; i < 94; i++) {
@@ -33,7 +33,7 @@ dfa *regex_patternToDFA(regex_node *pattern) {
 			newTree = regex_copy_tree(ptrR);
 			newTree = regex_derive(newTree, (char) (i + 32));
 
-			if (NULL != (ptr = hash_getDFA(newTree->hash))) {
+			if (NULL != (ptr = hash_get_dfa(newTree->hash))) {
                 current_DFA->alphabet[i] = ptr;
 			} else {
 				ptr = get_state();

@@ -35,7 +35,7 @@ dfa_state *get_state() {
  * Output:
  * - bool is_final: true if the last state the DFA landed on is a final state (match);
  */
-bool matchDFA(dfa *restrict dfa, const char *restrict string, int str_len) {
+bool match_dfa(dfa *restrict dfa, const char *restrict string, int str_len) {
 
 	dfa_state *cur_state = dfa->start;
 
@@ -57,7 +57,7 @@ bool matchDFA(dfa *restrict dfa, const char *restrict string, int str_len) {
  * Output:
  * - bool is_final: true if the last state the DFA landed on is a final state (match);
  */
-__attribute__((unused)) bool matchDFAPreemptive(dfa *restrict dfa, const char *restrict string, int strLen) {
+__attribute__((unused)) bool match_dfa_preemptive(dfa *restrict dfa, const char *restrict string, int strLen) {
     dfa_state *cur_state = dfa->start;
 
     int i;

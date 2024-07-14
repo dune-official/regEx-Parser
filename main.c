@@ -18,12 +18,12 @@ int main() {
     tokenstream = lexer_tokenize(input, (char) strnlen(input, 256));
     tree = parser_parse(tokenstream, PR_LOWEST);
 
-    regex_print_regExp(tree);
+    regex_print_regexp(tree);
     putchar('\n');
 
-    dfa = regex_patternToDFA(tree);
+    dfa = regex_pattern_to_dfa(tree);
 
-    matched = matchDFA(dfa, input_match, (int) strnlen(input_match,  256));
+    matched = match_dfa(dfa, input_match, (int) strnlen(input_match, 256));
     printf("%s", matched == true ? "Matched" : "Not matched");
 
     return 0;
@@ -80,18 +80,18 @@ int main_() {
 
 		printf("parsing \"%s\": \x1b[32m%f\x1b[0m\n", testSuite[i], time_spent);
 
-        regex_print_regExp(tree);
+        regex_print_regexp(tree);
         putchar('\n');
 
         begin = clock();
-        dfa = regex_patternToDFA(tree);
+        dfa = regex_pattern_to_dfa(tree);
         end = clock();
         time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
         printf("pattern 2 dfa \"%s\": \x1b[32m%f\x1b[0m\n", testSuite[i], time_spent);
 
         begin = clock();
-        _Bool matched = matchDFA(dfa, testSuiteMatch[i], (int) strnlen(testSuiteMatch[i],  256));
+        _Bool matched = match_dfa(dfa, testSuiteMatch[i], (int) strnlen(testSuiteMatch[i], 256));
         end = clock();
         time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 

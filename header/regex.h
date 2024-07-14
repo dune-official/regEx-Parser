@@ -47,11 +47,11 @@ __attribute__((unused)) extern _Bool regex_match(regex_node *restrict pattern, c
 // extern regexMatchResult *matchAny(regex_node *pattern, char *string);
 
 /* tree functions */
-void regex_print_regExp(const regex_node *root);
+void regex_print_regexp(const regex_node *root);
 
 regex_node *regex_copy_tree(regex_node *child);
 // extern regex_node *parser_parse(char *string);
 
-dfa *regex_patternToDFA(regex_node *pattern);
+dfa *regex_pattern_to_dfa(regex_node *pattern);
 
 #endif

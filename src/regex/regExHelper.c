@@ -170,26 +170,26 @@ regex_node *regex_copy_tree(regex_node *child) {
  * Input:
  * - const regex_node * root: The subtree to print;
  */
-void regex_print_regExp(const regex_node *root) {
+void regex_print_regexp(const regex_node *root) {
 	switch (root->type) {
 		case CONCAT:
-            regex_print_regExp(root->LHS);
-            regex_print_regExp(root->RHS);
+            regex_print_regexp(root->LHS);
+            regex_print_regexp(root->RHS);
 			break;
 		case UNION:
 			putchar('(');
-            regex_print_regExp(root->LHS);
+            regex_print_regexp(root->LHS);
 			putchar('|');
-            regex_print_regExp(root->RHS);
+            regex_print_regexp(root->RHS);
 			putchar(')');
 			break;
 		case KLEENE:
 			if (root->LHS->type == UNION) {
-                regex_print_regExp(root->LHS);
+                regex_print_regexp(root->LHS);
 				putchar('*');
 			} else {
 				putchar('(');
-                regex_print_regExp(root->LHS);
+                regex_print_regexp(root->LHS);
 				putchar(')');
 				putchar('*');
 			}
