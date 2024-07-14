@@ -1,5 +1,5 @@
-#ifndef REGEX_PARSER_PROCESSPATTERN_H
-#define REGEX_PARSER_PROCESSPATTERN_H
+#ifndef REGEX_PARSER_PROCESS_PATTERN_H
+#define REGEX_PARSER_PROCESS_PATTERN_H
 
 // #include "regex.h"
 // #include "seekable.h"

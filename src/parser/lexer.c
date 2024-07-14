@@ -1,11 +1,24 @@
 #include "../../header/parser.h"
 
+/* This function turns the input string into a token stream (seekable) under the special case that this is a quantifier.
+ * Input:
+ * - const char *input_string: The input string;
+ * - char length: The length of the string;
+ * - int *pos: The position of the input so far;
+ * - char len: The length of the rest of the string;
+ */
 void lexer_tokenize_quantifier(seek *restrict tokenstream, token *restrict cur_token, const char *restrict input_string, int *restrict pos) {
     int i = pos[0];
 
 
 }
 
+/* This function turns the input string into a token stream (seekable) under the special case that this is an escaped character.
+ * Input:
+ * - const char *input_string: The input string;
+ * - char length: The length of the string;
+ * - int *pos: The position of the input so far;
+ */
 void lexer_tokenize_escaped(seek *restrict tokenstream, token *restrict cur_token, const char *restrict input_string, int *restrict pos) {
     int i = pos[0];
     i++;
@@ -63,6 +76,13 @@ void lexer_tokenize_escaped(seek *restrict tokenstream, token *restrict cur_toke
     pos[0] = i;
 }
 
+/* This function turns the input string into a token stream (seekable) under the special case that this is a set.
+ * Input:
+ * - const char *input_string: The input string;
+ * - char length: The length of the string;
+ * - int *pos: The position of the input so far;
+ * - char len: The length of the rest of the string;
+ */
 void lexer_tokenize_set(seek *restrict tokenstream,
                         token *restrict cur_token, const char *restrict input_string, int *restrict pos, char len) {
     int i = pos[0];
@@ -129,6 +149,13 @@ void lexer_tokenize_set(seek *restrict tokenstream,
     exit(1);
 }
 
+/* This function turns the input string into a token stream (seekable).
+ * Input:
+ * - const char *input_string: The input string;
+ * - char length: The length of the string;
+ * Output:
+ * - seek *tokenstream: The token stream to use later on;
+ */
 seek *lexer_tokenize(const char *input_string, char length) {
     /* initialize token stream */
     seek *tokenstream = seekable_initialize();

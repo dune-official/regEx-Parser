@@ -12,15 +12,15 @@ add_executable(regEx_parser
         header/alloc_s.h
         header/DFA.h
         header/hash.h
-        header/processPattern.h
+        header/process_pattern.h
         header/queue.h
         header/regex.h
         header/seekable.h
 
         src/dfa/dfa.c
         src/hash/hash.c
-        src/parser/prattParser.c
-        src/parser/inputLexer.c
+        src/parser/parser.c
+        src/parser/lexer.c
         src/queue/queue.c
         src/regex/regEx.c
         src/regex/regExHelper.c

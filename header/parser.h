@@ -10,7 +10,7 @@
 #include "alloc_s.h"
 #include "DFA.h"
 #include "hash.h"
-#include "processPattern.h"
+#include "process_pattern.h"
 #include "queue.h"
 #include "regex.h"
 #include "seekable.h"

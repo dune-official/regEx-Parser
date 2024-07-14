@@ -1,6 +1,14 @@
 #include "../../header/parser.h"
 
-/* recursively produces a balanced tree (as balanced as possible) with the digits */
+/* This function recursively produces a balanced regex tree (as balanced as possible) with the digits.
+ * The tree is unions of unions. The chars have to be decreased by 48 of their ASCII value.
+ *
+ * Input:
+ * - const char from: The start of the range;
+ * - const char to: The end of the range;
+ * Output:
+ * - regex_node *tree: The balanced regex tree;
+ */
 regex_node *parser_balanced_tree(char from, char to) {
     if (from == to) {
         return regex_symbol((char) (from + 48));
@@ -18,16 +26,30 @@ regex_node *parser_balanced_tree(char from, char to) {
     }
 }
 
+/* This function recursively produces a balanced regex tree (as balanced as possible) of all the alphanumeric values.
+ *
+ * Output:
+ * - regex_node *tree: The balanced regex tree;
+ */
 regex_node *parser_get_alphanum() {
 	return regex_union(parser_balanced_tree(17, 42), parser_balanced_tree(49, 74));
 }
 
-
-/* Equals [0-9a-fA-F] */
+/* This function recursively produces a balanced regex tree (as balanced as possible) of all the hex chars.
+ * Equals [0-9a-fA-F].
+ *
+ * Output:
+ * - regex_node *tree: The balanced regex tree;
+ */
 regex_node *parser_get_hex() {
     return regex_union(parser_balanced_tree(17, 22), parser_balanced_tree(49, 54));
 }
 
+/* This function advances the stream by one and checks the stream for exhaustion
+ *
+ * Input:
+ * - seek *tokenstream: The tokenstream to advance;
+ */
 void parser_advance(seek *tokenstream) {
 	if (-1 == seekable_seek_right(tokenstream)) {
 		fputs("Unexpected exhaust of token stream", stderr);
@@ -35,6 +57,11 @@ void parser_advance(seek *tokenstream) {
 	}
 }
 
+/* This function checks the next token and if it is a NULL denominator, it inserts a CONCAT token.
+ *
+ * Input:
+ * - seek *tokenstream: The token stream to check;
+ */
 void parser_lookahead_concat(seek *tokenstream) {
 	token *lookahead;
 	if (NULL != (lookahead = (token *) seekable_peek_right(tokenstream)) && lookahead->is_nud) {
@@ -48,10 +75,15 @@ void parser_lookahead_concat(seek *tokenstream) {
 	}
 }
 
-/* lac = "LookAhead Control" */
-void parser_lookahead_epsilon(seek *tokenstream, char lac) {
+/* This function checks the next token and if it is the LAC, it inserts an EPSILON token.
+ *
+ * Input:
+ * - seek *tokenstream: The token stream to check;
+ * - char lookahead_control: The condition on wether to insert an EPSILON or not;
+ */
+void parser_lookahead_epsilon(seek *tokenstream, char lookahead_control) {
 	token *lookahead;
-	if (NULL != (lookahead = (token *) seekable_peek_right(tokenstream)) && lookahead->type == lac) {
+	if (NULL != (lookahead = (token *) seekable_peek_right(tokenstream)) && lookahead->type == lookahead_control) {
 		NEW(token, new, 1)
 
 		new->type = SYMBOL;
@@ -64,6 +96,11 @@ void parser_lookahead_epsilon(seek *tokenstream, char lac) {
 	}
 }
 
+/* This function checks the next token and if it is not a dash or ']', it inserts a UNION.
+ *
+ * Input:
+ * - seek *tokenstream: The token stream to check;
+ */
 void parser_lookahead_union_set(seek *tokenstream) {
 
     token *lookahead = (token *) seekable_peek_right(tokenstream);
@@ -78,6 +115,11 @@ void parser_lookahead_union_set(seek *tokenstream) {
     }
 }
 
+/* This function prints out the error in case an unknown token is encountered.
+ *
+ * Input:
+ * - token *token: The erroneous token;
+ */
 void parser_error(token *token) {
     char err_type;
     switch (token->type) {
@@ -98,8 +140,15 @@ void parser_error(token *token) {
     exit(1);
 }
 
-/* parses the supplied tokenstream with the pratt parser method. it is supposed to be initialized with the lowest
- * existing precedence, usually 0 */
+/* This function parses the supplied token stream with the pratt parser method.
+ * It is supposed to be initialized with the lowest existing precedence, usually 0.
+ *
+ * Input:
+ * - seek *tokenstream: The token stream to parse;
+ * - char precedence: The precedence of the current token;
+ * Output:
+ * - The resulting regex tree;
+ */
 regex_node *parser_parse(seek *tokenstream, char precedence) {
 	regex_node *left;
 	token *tkn = (token *) seekable_peek(tokenstream);
@@ -179,6 +228,12 @@ regex_node *parser_parse(seek *tokenstream, char precedence) {
 	return left;
 }
 
+/* This function parses a regex group.
+ * TODO: Create a regex capture group.
+ *
+ * Input:
+ * - seek *tokenstream: The token stream to parse;
+ */
 regex_node *parser_parse_group(seek *tokenstream) {
     parser_advance(tokenstream);
 	regex_node *expression = parser_parse(tokenstream, PR_LOWEST);
@@ -198,6 +253,13 @@ regex_node *parser_parse_group(seek *tokenstream) {
 	return expression;
 }
 
+/* This function parses an escaped character.
+ *
+ * Input:
+ * - char escaped: The actual escaped char;
+ * Output:
+ * - regex_node *escaped: The resulting regex subtree;
+ */
 regex_node *parser_parse_escaped(char escaped) {
 	switch (escaped) {
 		case 'd':
@@ -214,18 +276,42 @@ regex_node *parser_parse_escaped(char escaped) {
 	}
 }
 
+/* This function starts a union parse.
+ *
+ * Input:
+ * - regex_node *LHS: The left hand side of the expression so far;
+ * - seek *tokenstream: The tokenstream;
+ * Output:
+ * - regex_node *escaped: The resulting regex subtree;
+ */
 regex_node *parser_parse_union(regex_node *restrict LHS, seek *restrict tokenstream) {
     parser_advance(tokenstream);
 	regex_node *RHS = parser_parse(tokenstream, PR_UNION);
 	return regex_union(LHS, RHS);
 }
 
+/* This function starts a concat parse.
+ *
+ * Input:
+ * - regex_node *LHS: The left hand side of the expression so far;
+ * - seek *tokenstream: The tokenstream;
+ * Output:
+ * - regex_node *escaped: The resulting regex subtree;
+ */
 regex_node *parser_parse_concat(regex_node *restrict LHS, seek *restrict tokenstream) {
     parser_advance(tokenstream);
 	regex_node *RHS = parser_parse(tokenstream, PR_CONCAT);
 	return regex_concat(LHS, RHS);
 }
 
+/* This function starts a range parse from a set.
+ *
+ * Input:
+ * - regex_node *LHS: The left hand side of the expression so far;
+ * - seek *tokenstream: The tokenstream;
+ * Output:
+ * - regex_node *escaped: The resulting regex subtree;
+ */
 regex_node *parser_parse_range(regex_node *restrict LHS, seek *restrict tokenstream) {
     /* don't parser_advance since the set function advances instead */
     regex_node *RHS = parser_parse_set(tokenstream, PR_SETRANGE);
@@ -244,12 +330,28 @@ regex_node *parser_parse_range(regex_node *restrict LHS, seek *restrict tokenstr
     return parser_balanced_tree((char) l_content - 48, (char) r_content - 48);
 }
 
+/* This function starts a union parse for a set.
+ *
+ * Input:
+ * - regex_node *LHS: The left hand side of the expression so far;
+ * - seek *tokenstream: The tokenstream;
+ * Output:
+ * - regex_node *escaped: The resulting regex subtree;
+ */
 regex_node *parser_parse_union_set(regex_node *restrict LHS, seek *restrict tokenstream) {
     /* don't parser_advance since the set function advances instead */
     regex_node *RHS = parser_parse_set(tokenstream, PR_UNION);
     return regex_union(LHS, RHS);
 }
 
+/* This function starts a parse for a set.
+ *
+  * Input:
+ * - seek *tokenstream: The token stream to parse;
+ * - char precedence: The precedence of the current token;
+ * Output:
+ * - The resulting regex subtree;
+ */
 regex_node *parser_parse_set(seek *tokenstream, char precedence) {
     token *cur_token, *next_token;
     regex_node *left;
