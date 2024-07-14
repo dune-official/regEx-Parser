@@ -1,4 +1,4 @@
-#include "hash.h"
+#include "../../header/parser.h"
 #define MAXSIZE 769
 
 hash *h_array[MAXSIZE];
@@ -24,7 +24,7 @@ dfa_state *hash_getDFA(unsigned long long key) {
 	}
 }
 
-regexNode *hash_getRegExTree(unsigned long long key) {
+regex_node *hash_getRegExTree(unsigned long long key) {
 	int hash_value = hash_function(key);
 	if (NULL == h_array[hash_value]) {
 		return NULL;
@@ -41,7 +41,7 @@ regexNode *hash_getRegExTree(unsigned long long key) {
 	}
 }
 
-void hash_insert(unsigned long long key, regexNode *restrict tree, dfa_state *restrict state) {
+void hash_insert(unsigned long long key, regex_node *restrict tree, dfa_state *restrict state) {
 	int hash_value = hash_function(key);
 
 	if (NULL == h_array[hash_value]) {

@@ -1,16 +1,17 @@
-#include "queue.h"
+#include "../../header/parser.h"
 
 typedef struct QueueElement {
 	struct QueueElement *next;
 	unsigned long long element;
 } queue_inner;
 
-queue *initialize_queue() {
-	queue *aux_node = (queue *) calloc(1, sizeof(*aux_node));
-	if (NULL == aux_node) {
-		fputs("Failed to initialize buffer", stderr);
-		exit(-1);
-	}
+/* This function initializes a queue.
+ * Output:
+ * - queue *aux_node: The root of the queue;
+ */
+queue *queue_initialize() {
+	NEW(queue, aux_node, 1)
+
 	queue_inner *queue_start = NULL;
 	queue_inner *queue_end = NULL;
 	aux_node->queue_start = queue_start;
@@ -19,23 +20,22 @@ queue *initialize_queue() {
 	return aux_node;
 }
 
-void enqueue(unsigned long long to_enqueue, queue* queue) {
+/* This function enqueues an element.
+ * Input:
+ * - unsigned long long to_enqueue: The element to add to the queue:
+ * - queue *queue: The root of the queue;
+ */
+void queue_enqueue(unsigned long long to_enqueue, queue* queue) {
 	if (NULL == queue->queue_end && NULL == queue->queue_start) {
-		queue->queue_end = calloc(1, sizeof(*queue->queue_end));
-		if (NULL == queue->queue_end) {
-			fputs("Failed to initialize buffer", stderr);
-			exit(-1);
-		}
+        NEWSTRUCT(struct QueueElement, queue->queue_end)
+
 		queue->queue_end->element = to_enqueue;
 		queue->queue_start = queue->queue_end;
 		queue->queue_end->next = NULL;
 	} else {
 		/* the edge case here is that the end pointer points to the same element as queue_start */
-		queue_inner *queue_walker = calloc(1, sizeof(*queue_walker));
-		if (NULL == queue_walker) {
-			fputs("Failed to initialize buffer", stderr);
-			exit(-1);
-		}
+        NEW(queue_inner, queue_walker, 1)
+
 		queue_walker->element = to_enqueue;
 		queue_walker->next = NULL;
 		queue->queue_end->next = queue_walker;
@@ -43,7 +43,13 @@ void enqueue(unsigned long long to_enqueue, queue* queue) {
 	}
 }
 
-unsigned long long dequeue(queue *queue) {
+/* This function dequeues an element.
+ * Input:
+ * - queue *queue: The root of the queue;
+ * Output:
+ * - unsigned long long to_return: The next element in line;
+ */
+unsigned long long queue_dequeue(queue *queue) {
 	if (NULL == queue->queue_end && NULL == queue->queue_start) {
 		fputs("Queue is empty", stderr);
 		exit(1);
@@ -65,7 +71,13 @@ unsigned long long dequeue(queue *queue) {
 	}
 }
 
-char is_empty_queue(queue *queue) {
+/* This function checks if the queue is empty or not.
+ * Input:
+ * - queue *queue: The root of the queue;
+ * Output:
+ * - bool is_empty: true if the queue is empty, false otherwise;
+ */
+bool queue_is_empty(queue *queue) {
 	if (NULL == queue->queue_end || NULL == queue->queue_start) {
 		return 1;
 	} else {

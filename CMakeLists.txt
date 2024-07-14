@@ -6,10 +6,23 @@ add_compile_options(-Werror -O2)
 
 add_executable(regEx_parser
         main.c
-        regex/regex.h regex/regEx.c regex/regExHelper.c
-        hash/hash.c hash/hash.h
-        dfa/DFA.c
-        queue/queue.c queue/queue.h
-        parser/inputLexer.c parser/processPattern.h parser/prattParser.c
-        seekable/seekable.c seekable/seekable.h
+
+        header/parser.h
+        header/data_structures.h
+        header/alloc_s.h
+        header/DFA.h
+        header/hash.h
+        header/processPattern.h
+        header/queue.h
+        header/regex.h
+        header/seekable.h
+
+        src/dfa/dfa.c
+        src/hash/hash.c
+        src/parser/prattParser.c
+        src/parser/inputLexer.c
+        src/queue/queue.c
+        src/regex/regEx.c
+        src/regex/regExHelper.c
+        src/seekable/seekable.c
 )

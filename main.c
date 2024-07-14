@@ -1,5 +1,4 @@
-#include "regex/regex.h"
-#include "parser/processPattern.h"
+#include "header/parser.h"
 #include <time.h>
 
 // #include <fcntl.h>
@@ -7,6 +6,30 @@
 #define SIZE 10
 
 int main() {
+    regex_node *tree;
+    seek *tokenstream;
+    dfa *dfa;
+
+    bool matched;
+
+    char *input = "d[0-9a-f]m";
+    char *input_match = "d9m";
+
+    tokenstream = lexer_tokenize(input, (char) strnlen(input, 256));
+    tree = parser_parse(tokenstream, PR_LOWEST);
+
+    regex_print_regExp(tree);
+    putchar('\n');
+
+    dfa = regex_patternToDFA(tree);
+
+    matched = matchDFA(dfa, input_match, (int) strnlen(input_match,  256));
+    printf("%s", matched == true ? "Matched" : "Not matched");
+
+    return 0;
+}
+
+int main_() {
 	char *testSuite[SIZE] = {
 			"(a|b|c|d|e|f)",
 			"(7*e*|d*)l",
@@ -16,7 +39,7 @@ int main() {
 			"yeah (boi)*",
 			"colo(u|)r",
             "\\x:\\x",
-            "d[oua]n",
+            "d[abcdefgh]n",
             "d[a-f]t"
 	};
 
@@ -30,13 +53,13 @@ int main() {
 			"color",
             "7",
             "don",
-            "det"
+            "dat"
 	};
 
 	clock_t begin, end;
 	double time_spent;
 
-	regexNode *tree;
+	regex_node *tree;
 	seek *tokenStream;
 
 	dfa *dfa;
@@ -44,24 +67,24 @@ int main() {
 	int i;
 	for (i = 0; i < SIZE; i++) {
 		begin = clock();
-		tokenStream = tokenize(testSuite[i], (char) strnlen(testSuite[i], 256));
+		tokenStream = lexer_tokenize(testSuite[i], (char) strnlen(testSuite[i], 256));
 		end = clock();
 		time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
 		printf("Tokenizing \"%s\": \x1b[32m%f\x1b[0m\n", testSuite[i], time_spent);
 
 		begin = clock();
-		tree = parse(tokenStream, PR_LOWEST);
+		tree = parser_parse(tokenStream, PR_LOWEST);
 		end = clock();
 		time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
 		printf("parsing \"%s\": \x1b[32m%f\x1b[0m\n", testSuite[i], time_spent);
 
-        print_regExp(tree);
+        regex_print_regExp(tree);
         putchar('\n');
 
         begin = clock();
-        dfa = patternToDFA(tree);
+        dfa = regex_patternToDFA(tree);
         end = clock();
         time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
@@ -72,7 +95,7 @@ int main() {
         end = clock();
         time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
-        printf("match \"%s\" with \"%s\" preemptively: \x1b[32m%f\x1b[0m\n", testSuite[i], testSuiteMatch[i], time_spent);
+        printf("regex_match \"%s\" with \"%s\" preemptively: \x1b[32m%f\x1b[0m\n", testSuite[i], testSuiteMatch[i], time_spent);
 
 		puts("\x1b[31m------\x1b[0m");
 	}
