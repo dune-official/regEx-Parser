@@ -24,30 +24,6 @@
 #define SIZE 10
 
 int main() {
-    regex_node *tree;
-    seek *tokenstream;
-    dfa *dfa;
-
-    bool matched;
-
-    char *input = "d{2,4}";
-    char *input_match = "dddd";
-
-    tokenstream = lexer_tokenize(input, (char) strnlen(input, 256));
-    tree = parser_parse(tokenstream, PR_LOWEST);
-
-    regex_print_regexp(tree);
-    putchar('\n');
-
-    dfa = regex_pattern_to_dfa(tree);
-
-    matched = match_dfa(dfa, input_match, (int) strnlen(input_match, 256));
-    printf("%s", matched == true ? "Matched" : "Not matched");
-
-    return 0;
-}
-
-int main_() {
 	char *testSuite[SIZE] = {
 			"(a|b|c|d|e|f)",
 			"(7*e*|d*)l",
@@ -57,7 +33,7 @@ int main_() {
 			"yeah (boi)*",
 			"colo(u|)r",
             "\\x:\\x",
-            "d[abcdefgh]n",
+            "d[abcd]n",
             "d[a-f]t"
 	};
 

@@ -19,12 +19,12 @@ typedef struct regexNodeStruct {
     unsigned long long hash;
 } regex_node;
 
-typedef struct hash_node {
+typedef struct hash_node_old {
     struct hash_node *next;
     unsigned long long key;
     regex_node *tree;
     dfa_state *dfaState;
-} hash;
+} hash_old;
 
 struct SeekableNode {
     void *object;
@@ -45,5 +45,20 @@ typedef struct tokenStruct {
     unsigned char precedence: 3;
     unsigned char is_nud: 1;
 } token;
+
+typedef struct hash_root {
+    unsigned int (*hashfktn)(unsigned int, unsigned int);
+    unsigned int bucket_size;
+    struct hash_node **bucket;
+} hashmap;
+
+struct hash_node {
+    unsigned long long key;
+
+    regex_node *tree;
+    dfa_state *dfa_state;
+
+    struct hash_node *next;
+};
 
 #endif

@@ -4,49 +4,50 @@
  * This function should provide a significant improvement in speed,
  * when, for example, matching against a very long input and using a very large and/or right leaning tree */
 dfa *regex_pattern_to_dfa(regex_node *pattern) {
-	regex_node *newTree, *ptrR = pattern;
+	regex_node *new_tree, *ptr_r = pattern;
 
 	queue *q = queue_initialize();
+    hashmap *hash_root = hash_initialize(769);
 
 	dfa *dfa = get_dfa(1);
-	dfa->start->is_final = regex_is_nullable(ptrR);
+	dfa->start->is_final = regex_is_nullable(ptr_r);
 	dfa_state *current_DFA, *ptr;
 
-	unsigned long long ptrRHash;
+	unsigned long long ptr_r_hash;
 
     /* start with the initial state (the entire tree) */
-	hash_insert(ptrR->hash, ptrR, dfa->start);
-    queue_enqueue(ptrR->hash, q);
+	hash_insert(hash_root, ptr_r->hash, ptr_r, dfa->start);
+    queue_enqueue(ptr_r->hash, q);
 
 	char i;
 
 	while (!queue_is_empty(q)) {
-		ptrRHash = queue_dequeue(q);
+        ptr_r_hash = queue_dequeue(q);
 
         /* todo: combine this step into one structure or something */
-		ptrR = hash_get_regex_tree(ptrRHash);
-        current_DFA = hash_get_dfa(ptrRHash);
+		ptr_r = hash_get_tree(hash_root, ptr_r_hash);
+        current_DFA = hash_get_dfa(hash_root, ptr_r_hash);
 
         /* ASCII printable chars */
 		for (i = 0; i < 94; i++) {
 
-			newTree = regex_copy_tree(ptrR);
-			newTree = regex_derive(newTree, (char) (i + 32));
+            new_tree = regex_copy_tree(ptr_r);
+            new_tree = regex_derive(new_tree, (char) (i + 32));
 
-			if (NULL != (ptr = hash_get_dfa(newTree->hash))) {
+			if (NULL != (ptr = hash_get_dfa(hash_root, new_tree->hash))) {
                 current_DFA->alphabet[i] = ptr;
 			} else {
 				ptr = get_state();
-				ptr->is_final = regex_is_nullable(newTree);
+				ptr->is_final = regex_is_nullable(new_tree);
 
-                if (EMPTY == newTree->symbol) {
+                if (EMPTY == new_tree->symbol) {
                     ptr->is_dead = 1;
                 }
 
                 current_DFA->alphabet[i] = ptr;
 
-				hash_insert(newTree->hash, newTree, ptr);
-                queue_enqueue(newTree->hash, q);
+				hash_insert(hash_root, new_tree->hash, new_tree, ptr);
+                queue_enqueue(new_tree->hash, q);
 			}
 		}
 	}
