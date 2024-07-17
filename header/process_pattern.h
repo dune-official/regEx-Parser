@@ -6,6 +6,7 @@
 #include "parser.h"
 
 #define BACKSLASH 0x6
+#define INTEGER 0x07
 
 enum Precedence {
 	PR_LOWEST,
@@ -13,26 +14,11 @@ enum Precedence {
 	PR_CONCAT,
 	PR_QUANT,
 	PR_KLEENE,
-    PR_SETRANGE
+    PR_SETRANGE,
 };
 
 
 seek *lexer_tokenize(const char *input_string, char length);
-
 regex_node *parser_parse(seek *tokenstream, char precedence);
-
-void parser_advance(seek *tokenstream);
-
-regex_node *parser_parse_group(seek *tokenstream);
-
-regex_node *parser_parse_escaped(char escaped);
-
-regex_node *parser_parse_concat(regex_node *restrict LHS, seek *restrict tokenstream);
-
-regex_node *parser_parse_union(regex_node *restrict LHS, seek *restrict tokenstream);
-
-regex_node *parser_parse_set(seek *restrict tokenstream, char precedence);
-
-regex_node *parser_balanced_tree(char from, char to);
 
 #endif

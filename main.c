@@ -3,6 +3,24 @@
 
 // #include <fcntl.h>
 
+/* token *cur;
+*  while (NULL != (cur = (token *) seekable_peek(tokenstream))) {
+*       switch (cur->type) {
+*           case SYMBOL:
+*               printf("%c\n", cur->symbol);
+*               break;
+*           case INTEGER:
+*               printf("%d\n", cur->symbol);
+*               break;
+*           default:
+*               printf("%c\n", cur->type);
+*               break;
+*       }
+*
+*       seekable_seek_right(tokenstream);
+*   }
+*/
+
 #define SIZE 10
 
 int main() {
@@ -12,8 +30,8 @@ int main() {
 
     bool matched;
 
-    char *input = "d[0-9a-f]m";
-    char *input_match = "d9m";
+    char *input = "d{2,4}";
+    char *input_match = "dddd";
 
     tokenstream = lexer_tokenize(input, (char) strnlen(input, 256));
     tree = parser_parse(tokenstream, PR_LOWEST);

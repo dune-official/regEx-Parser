@@ -1,5 +1,23 @@
 #include "../../header/parser.h"
 
+char lexer_tokenize_int(const char *restrict input_string, int *restrict pos, char len) {
+
+    int i = pos[0];
+
+    NEW(char, buffer, len)
+    int buff_pos = 0;
+
+    while ('0' <= input_string[i] && '9' >= input_string[i]) {
+        buffer[buff_pos++] = input_string[i++];
+    }
+
+    char to_return = (char) strtol(buffer, NULL, 10);
+    free(buffer);
+    pos[0] = i - 1;
+
+    return to_return;
+}
+
 /* This function turns the input string into a token stream (seekable) under the special case that this is a quantifier.
  * Input:
  * - const char *input_string: The input string;
@@ -7,10 +25,68 @@
  * - int *pos: The position of the input so far;
  * - char len: The length of the rest of the string;
  */
-void lexer_tokenize_quantifier(seek *restrict tokenstream, token *restrict cur_token, const char *restrict input_string, int *restrict pos) {
+void lexer_tokenize_quantifier(seek *restrict tokenstream,
+                               token *restrict cur_token, const char *restrict input_string, int *restrict pos, char len) {
     int i = pos[0];
+    i++;
 
+    if (i > 0) {
+        seekable_insert_node_right(tokenstream);
+        seekable_seek_right(tokenstream);
+    }
 
+    seekable_set_current((void *) cur_token, tokenstream->current);
+
+    for (; i < len; i++) {
+
+        if ('}' == input_string[i]) {
+            pos[0] = i - 1;
+            return;
+        }
+
+        /* initialize token */
+        cur_token = (token *) calloc(1, sizeof(*cur_token));
+        if (NULL == cur_token) {
+            fputs("Failed to initialize buffer", stderr);
+            exit(1);
+        }
+
+        cur_token->type = input_string[i];
+        cur_token->precedence = PR_LOWEST;
+
+        switch (input_string[i]) {
+            case ',':
+                cur_token->precedence = PR_QUANT;
+                break;
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+            case '0':
+                cur_token->is_nud = 1;
+                cur_token->type = INTEGER;
+                cur_token->symbol = lexer_tokenize_int(input_string, &i, len);
+                break;
+            default:
+                fprintf(stderr, "Unknown token: %c", input_string[i]);
+        }
+
+        /* insert into seeker */
+        if (i > 0) {
+            seekable_insert_node_right(tokenstream);
+            seekable_seek_right(tokenstream);
+        }
+
+        seekable_set_current((void *) cur_token, tokenstream->current);
+    }
+
+    fputs("Expected token '}', got: EOF", stderr);
+    exit(1);
 }
 
 /* This function turns the input string into a token stream (seekable) under the special case that this is an escaped character.
@@ -196,6 +272,9 @@ seek *lexer_tokenize(const char *input_string, char length) {
                 cur_token->is_nud = 1;
 				break;
 			case '{':
+                cur_token->precedence = PR_QUANT;
+                lexer_tokenize_quantifier(tokenstream, cur_token, input_string, &i, length);
+                continue;
 			case ')':
 			case '>':
 			case ']':
