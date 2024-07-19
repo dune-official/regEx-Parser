@@ -8,8 +8,8 @@ dfa *regex_pattern_to_dfa(regex_node *pattern) {
 
 	queue *q = queue_initialize();
     hashmap *hash_root = hash_initialize(769);
+	dfa *dfa = dfa_initialize(1);
 
-	dfa *dfa = get_dfa(1);
 	dfa->start->is_final = regex_is_nullable(ptr_r);
 	dfa_state *current_DFA, *ptr;
 
@@ -23,8 +23,6 @@ dfa *regex_pattern_to_dfa(regex_node *pattern) {
 
 	while (!queue_is_empty(q)) {
         ptr_r_hash = queue_dequeue(q);
-
-        /* todo: combine this step into one structure or something */
 		ptr_r = hash_get_tree(hash_root, ptr_r_hash);
         current_DFA = hash_get_dfa(hash_root, ptr_r_hash);
 
@@ -37,8 +35,8 @@ dfa *regex_pattern_to_dfa(regex_node *pattern) {
 			if (NULL != (ptr = hash_get_dfa(hash_root, new_tree->hash))) {
                 current_DFA->alphabet[i] = ptr;
 			} else {
-				ptr = get_state();
-				ptr->is_final = regex_is_nullable(new_tree);
+				ptr = dfa_get_state();
+                ptr->is_final = regex_is_nullable(new_tree);
 
                 if (EMPTY == new_tree->symbol) {
                     ptr->is_dead = 1;

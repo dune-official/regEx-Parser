@@ -1,8 +1,14 @@
 #ifndef REGEX_PARSER_DATA_STRUCTURES_H
 #define REGEX_PARSER_DATA_STRUCTURES_H
 
+typedef struct matcher {
+    char *buffer;
+
+    struct matcher *next;
+} matcher;
+
 typedef struct DFA_state {
-    _Bool is_final, is_dead;
+    bool is_final, is_dead;
 
     struct DFA_state *alphabet[94];
 } dfa_state;
@@ -18,13 +24,6 @@ typedef struct regexNodeStruct {
     unsigned char type, symbol;
     unsigned long long hash;
 } regex_node;
-
-typedef struct hash_node_old {
-    struct hash_node *next;
-    unsigned long long key;
-    regex_node *tree;
-    dfa_state *dfaState;
-} hash_old;
 
 struct SeekableNode {
     void *object;

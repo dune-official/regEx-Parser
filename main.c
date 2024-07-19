@@ -23,7 +23,27 @@
 
 #define SIZE 10
 
-int main() {
+int main () {
+
+    char *input = "it goes 1 2 3 four 5";
+    char *pattern = "\\d";
+
+    seek *tokenstream = lexer_tokenize(pattern, (char) strnlen(pattern, 256));
+    regex_node *tree = parser_parse(tokenstream, PR_LOWEST);
+
+    dfa *dfa = regex_pattern_to_dfa(tree);
+
+    matcher *all = dfa_match_all(dfa, input, (int) strnlen(input, 256));
+
+    while (all->next != NULL) {
+        printf("%s\n", all->buffer);
+        all = all->next;
+    }
+
+    return 0;
+}
+
+int main_() {
 	char *test_suite[SIZE] = {
 			"(a|b|c|d|e|f)",
 			"(7*e*|d*)l",
@@ -85,7 +105,7 @@ int main() {
         printf("pattern 2 dfa \"%s\": \x1b[32m%f\x1b[0m\n", test_suite[i], time_spent);
 
         begin = clock();
-        _Bool matched = match_dfa(dfa, test_suite_match[i], (int) strnlen(test_suite_match[i], 256));
+        _Bool matched = dfa_match_full(dfa, test_suite_match[i], (int) strnlen(test_suite_match[i], 256));
         end = clock();
         time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
