@@ -2,7 +2,8 @@
 #define REGEX_PARSER_DATA_STRUCTURES_H
 
 typedef struct matcher {
-    char *buffer;
+    unsigned int from;
+    unsigned int to;
 
     struct matcher *next;
 } matcher;

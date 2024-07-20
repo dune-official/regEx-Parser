@@ -165,7 +165,7 @@ regex_node *regex_copy_tree(regex_node *child) {
 	return root;
 }
 
-/* This function prints out the regex statement in infix notation.
+/* This function recursively prints out the regex statement in infix notation.
  *
  * Input:
  * - const regex_node * root: The subtree to print;

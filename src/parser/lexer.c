@@ -28,6 +28,12 @@ char lexer_tokenize_int(const char *restrict input_string, int *restrict pos, ch
 void lexer_tokenize_quantifier(seek *restrict tokenstream,
                                token *restrict cur_token, const char *restrict input_string, int *restrict pos, char len) {
     int i = pos[0];
+
+    if (i == 0) {
+        fputs("Unexpected quantifier", stderr);
+        exit(1);
+    }
+
     i++;
 
     if (i > 0) {
@@ -46,10 +52,7 @@ void lexer_tokenize_quantifier(seek *restrict tokenstream,
 
         /* initialize token */
         cur_token = (token *) calloc(1, sizeof(*cur_token));
-        if (NULL == cur_token) {
-            fputs("Failed to initialize buffer", stderr);
-            exit(1);
-        }
+        VALNUL(cur_token)
 
         cur_token->type = input_string[i];
         cur_token->precedence = PR_LOWEST;
@@ -162,7 +165,6 @@ void lexer_tokenize_escaped(seek *restrict tokenstream, token *restrict cur_toke
 void lexer_tokenize_set(seek *restrict tokenstream,
                         token *restrict cur_token, const char *restrict input_string, int *restrict pos, char len) {
     int i = pos[0];
-    i++;
 
     if (i > 0) {
         seekable_insert_node_right(tokenstream);
@@ -170,6 +172,8 @@ void lexer_tokenize_set(seek *restrict tokenstream,
     }
 
     seekable_set_current((void *) cur_token, tokenstream->current);
+
+    i++;
 
     for (; i < len; i++) {
 
@@ -180,10 +184,7 @@ void lexer_tokenize_set(seek *restrict tokenstream,
 
         /* initialize token */
         cur_token = (token *) calloc(1, sizeof(*cur_token));
-        if (NULL == cur_token) {
-            fputs("Failed to initialize buffer", stderr);
-            exit(1);
-        }
+        VALNUL(cur_token)
 
         if (input_string[i] == '\\') {
 
@@ -235,16 +236,10 @@ void lexer_tokenize_set(seek *restrict tokenstream,
 seek *lexer_tokenize(const char *input_string, char length) {
     /* initialize token stream */
     seek *tokenstream = seekable_initialize();
-	token *cur_token;
 
 	int i;
 	for (i = 0; i < length; i++) {
-
-        cur_token = (token *) calloc(1, sizeof(*cur_token));
-		if (NULL == cur_token) {
-			fputs("Failed to initialize buffer", stderr);
-			exit(1);
-		}
+        NEW(token, cur_token, 1)
 
         /* Escaped character */
 		if (input_string[i] == '\\') {

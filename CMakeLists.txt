@@ -10,12 +10,14 @@ add_executable(regEx_parser
         header/parser.h
         header/data_structures.h
         header/alloc_s.h
+
         header/DFA.h
         header/process_pattern.h
         header/queue.h
         header/regex.h
         header/seekable.h
         header/hash.h
+        header/matcher.h
 
         src/dfa/dfa.c
         src/parser/parser.c
@@ -25,4 +27,5 @@ add_executable(regEx_parser
         src/regex/regExHelper.c
         src/seekable/seekable.c
         src/hash/hash.c
+        src/match/matcher.c
 )

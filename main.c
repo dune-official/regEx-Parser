@@ -1,44 +1,25 @@
 #include "header/parser.h"
 #include <time.h>
 
-// #include <fcntl.h>
+#define SIZE 11
 
-/* token *cur;
-*  while (NULL != (cur = (token *) seekable_peek(tokenstream))) {
-*       switch (cur->type) {
-*           case SYMBOL:
-*               printf("%c\n", cur->symbol);
-*               break;
-*           case INTEGER:
-*               printf("%d\n", cur->symbol);
-*               break;
-*           default:
-*               printf("%c\n", cur->type);
-*               break;
-*       }
-*
-*       seekable_seek_right(tokenstream);
-*   }
-*/
+int main() {
 
-#define SIZE 10
-
-int main () {
-
-    char *input = "it goes 1 2 3 four 5";
-    char *pattern = "\\d";
+    char *input = "this ain't no thing but a summer dance";
+    char *pattern = "[ u']t";
 
     seek *tokenstream = lexer_tokenize(pattern, (char) strnlen(pattern, 256));
+
     regex_node *tree = parser_parse(tokenstream, PR_LOWEST);
 
+    putchar('>');
+    regex_print_regexp(tree);
+    putchar('\n');
+
     dfa *dfa = regex_pattern_to_dfa(tree);
+    matcher *all = matcher_match_all(dfa, input, (int) strnlen(input, 256));
 
-    matcher *all = dfa_match_all(dfa, input, (int) strnlen(input, 256));
-
-    while (all->next != NULL) {
-        printf("%s\n", all->buffer);
-        all = all->next;
-    }
+    matcher_print_matches(all, input, false);
 
     return 0;
 }
@@ -54,7 +35,8 @@ int main_() {
 			"colo(u|)r",
             "\\x:\\x",
             "d[abcd]n",
-            "d[a-f]t"
+            "d[a-f]t",
+            "this"
 	};
 
 	char *test_suite_match[SIZE] = {
@@ -67,7 +49,8 @@ int main_() {
 			"color",
             "7",
             "don",
-            "dat"
+            "dat",
+            "this"
 	};
 
 	clock_t begin, end;
@@ -105,7 +88,7 @@ int main_() {
         printf("pattern 2 dfa \"%s\": \x1b[32m%f\x1b[0m\n", test_suite[i], time_spent);
 
         begin = clock();
-        _Bool matched = dfa_match_full(dfa, test_suite_match[i], (int) strnlen(test_suite_match[i], 256));
+        _Bool matched = matcher_match_full(dfa, test_suite_match[i], (int) strnlen(test_suite_match[i], 256));
         end = clock();
         time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 

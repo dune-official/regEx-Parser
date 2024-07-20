@@ -14,5 +14,6 @@
 #include "queue.h"
 #include "regex.h"
 #include "seekable.h"
+#include "matcher.h"
 
 #endif
