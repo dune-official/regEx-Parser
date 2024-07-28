@@ -52,10 +52,15 @@ regex_node *parser_parse(seek *tokenstream, char precedence) {
             /* if the following token is a "|", we can assume that there has to be an EPSILON */
             parser_lookahead_epsilon(tokenstream, '|');
             left = parser_parse_group(tokenstream);
+            parser_lookahead_concat(tokenstream);
             break;
         case '[':
             left = parser_parse_set(tokenstream, PR_LOWEST);
             parser_lookahead_concat(tokenstream);
+            break;
+        case '.':
+            parser_lookahead_concat(tokenstream);
+            left = parser_balanced_tree(' ' - 48, '~' - 48);
             break;
         case BACKSLASH:
             left = parser_parse_escaped(tkn->symbol);
@@ -86,7 +91,6 @@ regex_node *parser_parse(seek *tokenstream, char precedence) {
                 break;
             case '{':
                 left = parser_parse_quantifier(left, tokenstream);
-                /* in this case, we lookahed afterward, since the quantifier is not just one token */
                 parser_lookahead_concat(tokenstream);
                 parser_advance(tokenstream);
                 break;
@@ -191,11 +195,9 @@ regex_node *parser_parse_group(seek *tokenstream) {
     }
 
     if (next_token->type != ')') {
-        fprintf(stderr, "Unexpected token type in token stream: %c (Expected ')')", next_token->type);
-        exit(1);
+        parser_error(next_token);
     }
 
-    parser_lookahead_concat(tokenstream);
     return expression;
 }
 
@@ -353,7 +355,7 @@ regex_node *parser_repeat_pattern(regex_node *pattern, char count) {
     }
 
     char limit;
-    regex_node *expression = regex_concat(pattern, regex_copy_tree(pattern));;
+    regex_node *expression = regex_concat(pattern, regex_copy_tree(pattern));
 
     for (limit = 2; limit < count; limit++) {
         expression = regex_concat(expression, regex_copy_tree(pattern));

@@ -262,6 +262,7 @@ seek *lexer_tokenize(const char *input_string, char length) {
                 continue;
 			case '^':
 			case '$':
+			case '.':
 			case '(':
                 cur_token->precedence = PR_LOWEST;
                 cur_token->is_nud = 1;

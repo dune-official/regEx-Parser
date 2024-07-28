@@ -20,7 +20,7 @@ void matcher_print_matches(matcher *restrict matcher_root, const char *restrict 
     while (matcher_root->next != NULL) {
 
         if (show_indices) {
-            printf("%2d - %2d: ", matcher_root->from, matcher_root->to);
+            printf("%2d %2d ", matcher_root->from, matcher_root->to);
         }
 
         for (i = matcher_root->from; i <= matcher_root->to; i++) {
@@ -35,39 +35,45 @@ void matcher_print_matches(matcher *restrict matcher_root, const char *restrict 
  *  that keeps the pointers to the original string.
  *
  * Input:
- * - dfa *restrict dfa: The dfa of the regex pattern;
+ * - pattern *restrict pattern: The pattern of the regex pattern;
  * - const char *restrict string: The string to match against;
  * - int str_len: The string length;
  * Output:
  * - matcher *match_root: The root of the matcher linked list;
  */
-matcher *matcher_match_all(dfa *restrict dfa, const char *restrict string, int str_len) {
-    dfa_state *cur_state = dfa->start;
+matcher *matcher_match_all(pattern *restrict pattern, const char *restrict string, int str_len) {
+    dfa_state *cur_state = pattern->start;
     unsigned int i;
     NEW(matcher, matcher_root, 1)
 
-    /* we set the buffer to {1, 0} so that the dead state does not match the unmodified {0, 0} */
-    unsigned int buffer[2] = {1, 0};
+    unsigned int buffer[2] = {0, 0};
+    bool matched = false;
+
     matcher *ptr = matcher_root;
 
     for (i = 0; i < str_len; i++) {
+
         cur_state = cur_state->alphabet[string[i] - 32];
         if (cur_state->is_final) {
+
+            matched = true;
             buffer[1] = i;
             continue;
         }
 
         if (cur_state->is_dead) {
-            cur_state = dfa->start;
-            if (buffer[1] >= buffer[0]) {
+            cur_state = pattern->start;
+            if (matched) {
+                matched = false;
                 ptr = matcher_add_match(ptr, buffer);
+                i--;
             }
             buffer[0] = i+1;
             continue;
         }
     }
 
-    if (buffer[1] >= buffer[0]) {
+    if (matched) {
         ptr = matcher_add_match(ptr, buffer);
     }
 
@@ -77,15 +83,15 @@ matcher *matcher_match_all(dfa *restrict dfa, const char *restrict string, int s
 /* This function matches a given DFA to its input fully (once from top to bottom).
  *
  * Input:
- * - dfa *restrict dfa: The dfa of the regex pattern;
+ * - pattern *restrict pattern: The pattern of the regex pattern;
  * - const char *restrict string: The string to match;
  * - int str_len: The length of the string;
  * Output:
  * - bool is_final: true if the last state the DFA landed on is a final state (match);
  */
-bool matcher_match_full(dfa *restrict dfa, const char *restrict string, int str_len) {
+bool matcher_match_full(pattern *restrict pattern, const char *restrict string, int str_len) {
 
-    dfa_state *cur_state = dfa->start;
+    dfa_state *cur_state = pattern->start;
     int i;
 
     for (i = 0; i < str_len; i++) {
@@ -93,4 +99,24 @@ bool matcher_match_full(dfa *restrict dfa, const char *restrict string, int str_
     }
 
     return cur_state->is_final;
+}
+
+pattern *matcher_get_pattern(char *pattern_string, char pattern_string_len) {
+    seek *tokenstream = lexer_tokenize(pattern_string, pattern_string_len);
+    regex_node *tree = parser_parse(tokenstream, PR_LOWEST);
+
+#ifdef DEBUG
+    putchar('>');
+    regex_print_regexp(tree);
+    putchar('\n');
+#endif
+
+    return regex_pattern_to_dfa(tree);
+}
+
+char *matcher_get_match(matcher *restrict match_object, char *restrict string) {
+    unsigned copysize = match_object->to - match_object->from + 1;
+    NEW(char, buffer, copysize)
+    strncpy(buffer, string + match_object->from, copysize);
+    return buffer;
 }

@@ -61,4 +61,6 @@ struct hash_node {
     struct hash_node *next;
 };
 
+typedef dfa pattern;
+
 #endif

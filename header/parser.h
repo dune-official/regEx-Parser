@@ -16,4 +16,6 @@
 #include "seekable.h"
 #include "matcher.h"
 
+// #define DEBUG 0
+
 #endif
