@@ -67,6 +67,10 @@ matcher *matcher_match_all(dfa *restrict dfa, const char *restrict string, int s
         }
     }
 
+    if (buffer[1] >= buffer[0]) {
+        ptr = matcher_add_match(ptr, buffer);
+    }
+
     return matcher_root;
 }
 

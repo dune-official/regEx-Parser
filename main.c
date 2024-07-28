@@ -5,8 +5,8 @@
 
 int main() {
 
-    char *input = "this ain't no thing but a summer dance";
-    char *pattern = "[ u']t";
+    char *input = "my IP is 127.0.0.1 and yours?";
+    char *pattern = "(\\d{1,3}.){3}\\d{1,3}";
 
     seek *tokenstream = lexer_tokenize(pattern, (char) strnlen(pattern, 256));
 

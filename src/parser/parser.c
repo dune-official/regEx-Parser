@@ -86,6 +86,8 @@ regex_node *parser_parse(seek *tokenstream, char precedence) {
                 break;
             case '{':
                 left = parser_parse_quantifier(left, tokenstream);
+                /* in this case, we lookahed afterward, since the quantifier is not just one token */
+                parser_lookahead_concat(tokenstream);
                 parser_advance(tokenstream);
                 break;
             case '|':
@@ -189,7 +191,8 @@ regex_node *parser_parse_group(seek *tokenstream) {
     }
 
     if (next_token->type != ')') {
-        parser_error(next_token);
+        fprintf(stderr, "Unexpected token type in token stream: %c (Expected ')')", next_token->type);
+        exit(1);
     }
 
     parser_lookahead_concat(tokenstream);
